@@ -18,10 +18,11 @@ use pocketmine\player\Player;
 use pocketmine\network\mcpe\protocol\types\BossBarColor;
 use xenialdan\apibossbar\BossBar;
 use CortexPE\Commando\PacketHooker;
+use pocketmine\scheduler\TaskHandler;
 
 class KOTH extends PluginBase {
     protected static KOTH $instance;
-    private ?KothTask $task = null;
+    private ?TaskHandler $taskHandler = null;
     private ?Arena $current = null;
     private Config $data;
     protected array $arenas = [];
@@ -114,7 +115,7 @@ class KOTH extends PluginBase {
     }
 
     public function isRunning(): bool {
-        return $this->task !== null;
+        return $this->taskHandler !== null;
     }
 
     public function createArena(string $name, Position $pos1, Position $pos2): string {
@@ -149,7 +150,7 @@ class KOTH extends PluginBase {
             return "KOTH » §7El KOTH ya está en ejecución";
         }
 
-        $this->task = $this->getScheduler()->scheduleRepeatingTask(new KothTask($this, $arena), $this->config->TASK_DELAY);
+        $this->taskHandler = $this->getScheduler()->scheduleRepeatingTask(new KothTask($this, $arena), $this->config->TASK_DELAY);
         $this->current = $arena;
         $arenaName = $arena->getName();
 
@@ -176,7 +177,7 @@ class KOTH extends PluginBase {
 
     public function stopKoth(string $winnerName = null): string {
         if (!$this->isRunning()) {
-            return "§c(§8RaveKOTH§c) §7No hay ningún evento de KOTH en ejecución";
+            return "KOTH » §7No hay ningún evento de KOTH en ejecución";
         }
 
         if ($winnerName !== null) {
@@ -197,8 +198,8 @@ class KOTH extends PluginBase {
             }
         }
 
-        $this->task->cancel();
-        $this->task = null;
+        $this->taskHandler->cancel();
+        $this->taskHandler = null;
         $this->current = null;
 
         if ($this->config->USE_WEBHOOK && $winnerName !== null) {
