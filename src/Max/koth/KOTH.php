@@ -8,17 +8,16 @@ use CortexPE\DiscordWebhookAPI\Embed;
 use CortexPE\DiscordWebhookAPI\Message;
 use CortexPE\DiscordWebhookAPI\Webhook;
 use Max\koth\Commands\kothCommand;
+use Max\koth\Config\KothConfig;
 use Max\koth\Tasks\KothTask;
 use Max\koth\Tasks\StartKothTask;
 use pocketmine\plugin\PluginBase;
 use pocketmine\utils\Config;
 use pocketmine\world\Position;
 use pocketmine\player\Player;
-use pocketmine\utils\TextFormat;
 use pocketmine\network\mcpe\protocol\types\BossBarColor;
 use xenialdan\apibossbar\BossBar;
 use Ifera\ScoreHud\event\TagsResolveEvent;
-use Ifera\ScoreHud\scoreboard\ScoreTag;
 use CortexPE\Commando\PacketHooker;
 
 class KOTH extends PluginBase {
@@ -28,36 +27,19 @@ class KOTH extends PluginBase {
     private Config $data;
     private array $arenas = [];
     public BossBar $bar;
+    public KothConfig $config;
     
-    public int $TASK_DELAY = 20;
-    public int $CAPTURE_TIME = 300;
-    public bool $USE_BOSSBAR = true;
-    public string $COLOR_BOSSBAR = "blue";
-    public bool $SEND_TIPS = true;
-    public bool $SEND_ACTIONBAR = true;
-    public bool $USE_WEBHOOK = false;
-    public string $WEBHOOK_URL = "";
-    public array $REWARDS = [];
-
     public function onEnable(): void {
         self::$instance = $this;
 
         $this->saveResource("config.yml");
         $this->saveResource("data.yml");
-        $config = new Config($this->getDataFolder() . "config.yml", Config::YAML);
+        $configFile = new Config($this->getDataFolder() . "config.yml", Config::YAML);
         $this->data = new Config($this->getDataFolder() . "data.yml", Config::YAML);
+        
+        $this->config = new KothConfig($configFile->getAll());
 
-        $this->TASK_DELAY = $config->get("task-delay", 20);
-        $this->CAPTURE_TIME = $config->get("capture-time", 300);
-        $this->USE_BOSSBAR = $config->get("use-bossbar", true);
-        $this->COLOR_BOSSBAR = $config->get("color-bossbar", "blue");
-        $this->SEND_TIPS = $config->get("send-tips", true);
-        $this->SEND_ACTIONBAR = $config->get("send-actionbar", true);
-        $this->USE_WEBHOOK = $config->get("use-webhook", false);
-        $this->WEBHOOK_URL = $config->get("webhook-url", "");
-        $this->REWARDS = $config->get("rewards", []);
-
-        if ($this->USE_BOSSBAR) {
+        if ($this->config->USE_BOSSBAR) {
             $this->bar = new BossBar();
         }
 
@@ -79,7 +61,7 @@ class KOTH extends PluginBase {
     }
 
     public function setBossBarColor(string $color): void {
-        if (!$this->USE_BOSSBAR || !isset($this->bar)) {
+        if (!$this->config->USE_BOSSBAR || !isset($this->bar)) {
             return;
         }
 
@@ -148,19 +130,19 @@ class KOTH extends PluginBase {
             return "§c(§8RaveKOTH§c) §7El KOTH ya está en ejecución";
         }
 
-        $this->task = $this->getScheduler()->scheduleRepeatingTask(new KothTask($this, $arena), $this->TASK_DELAY);
+        $this->task = $this->getScheduler()->scheduleRepeatingTask(new KothTask($this, $arena), $this->config->TASK_DELAY);
         $this->current = $arena;
         $arenaName = $arena->getName();
 
-        if ($this->USE_BOSSBAR) {
+        if ($this->config->USE_BOSSBAR) {
             foreach ($this->getServer()->getOnlinePlayers() as $player) {
                 $this->bar->addPlayer($player);
             }
-            $this->setBossBarColor((string)$this->COLOR_BOSSBAR);
+            $this->setBossBarColor($this->config->COLOR_BOSSBAR);
         }
 
-        if ($this->USE_WEBHOOK) {
-            $webhook = new Webhook($this->WEBHOOK_URL);
+        if ($this->config->USE_WEBHOOK) {
+            $webhook = new Webhook($this->config->WEBHOOK_URL);
             $msg = new Message();
             $embed = new Embed();
             $embed->setTitle("KOTH Started");
@@ -181,7 +163,7 @@ class KOTH extends PluginBase {
         if ($winnerName !== null) {
             $winner = $this->getServer()->getPlayerExact($winnerName);
             if ($winner instanceof Player) {
-                foreach ($this->REWARDS as $command) {
+                foreach ($this->config->REWARDS as $command) {
                     $this->getServer()->dispatchCommand(
                         $this->getServer()->getConsoleSender(),
                         str_replace("{player}", $winnerName, $command)
@@ -190,7 +172,7 @@ class KOTH extends PluginBase {
             }
         }
 
-        if ($this->USE_BOSSBAR) {
+        if ($this->config->USE_BOSSBAR) {
             foreach ($this->getServer()->getOnlinePlayers() as $player) {
                 $this->bar->removePlayer($player);
             }
@@ -200,8 +182,8 @@ class KOTH extends PluginBase {
         $this->task = null;
         $this->current = null;
 
-        if ($this->USE_WEBHOOK && $winnerName !== null) {
-            $webhook = new Webhook($this->WEBHOOK_URL);
+        if ($this->config->USE_WEBHOOK && $winnerName !== null) {
+            $webhook = new Webhook($this->config->WEBHOOK_URL);
             $msg = new Message();
             $embed = new Embed();
             $embed->setTitle("KOTH Ended");
@@ -212,26 +194,5 @@ class KOTH extends PluginBase {
         }
 
         return "§c(§8RaveKOTH§c) §7El KOTH ha sido detenido";
-    }
-
-    public function onTagResolve(TagsResolveEvent $event) {
-        $tag = $event->getTag();
-        $tags = explode('.', $tag->getName(), 2);
-        $value = "";
-
-        if ($tags[0] !== 'koth' || count($tags) < 2) {
-            return;
-        }
-
-        switch ($tags[1]) {
-            case "running":
-                $value = $this->isRunning() ? "Yes" : "No";
-                break;
-            case "arena":
-                $value = $this->current ? $this->current->getName() : "None";
-                break;
-        }
-
-        $tag->setValue($value);
     }
 }
