@@ -6,30 +6,43 @@ namespace Max\koth\Listeners;
 
 use Max\koth\KOTH;
 use pocketmine\event\Listener;
-use pocketmine\event\player\PlayerCommandPreprocessEvent;
+use pocketmine\event\server\CommandEvent;
+use pocketmine\player\Player;
 
 class CommandProtectionListener implements Listener {
     private KOTH $plugin;
-    private array $blockedCommands = ["/f", "/faction", "/factions", "/f claim"];
+    private array $blockedCommands = ["f", "faction", "factions"];
 
     public function __construct(KOTH $plugin) {
         $this->plugin = $plugin;
     }
 
-    public function onCommand(PlayerCommandPreprocessEvent $event): void {
+    public function onCommand(CommandEvent $event): void {
+        $sender = $event->getSender();
+        if (!($sender instanceof Player)) {
+            return;
+        }
+
         if (!$this->plugin->isRunning()) {
             return;
         }
 
-        $player = $event->getPlayer();
-        $command = strtolower($event->getMessage());
+        $command = strtolower($event->getCommand());
+        $commandParts = explode(" ", $command);
+        $baseCommand = $commandParts[0];
 
         foreach ($this->blockedCommands as $blockedCmd) {
-            if (str_starts_with($command, $blockedCmd)) {
+            if ($baseCommand === $blockedCmd) {
                 $event->cancel();
-                $player->sendMessage("§c(§8RaveKOTH§c) §7No puedes usar este comando durante el KOTH.");
+                $sender->sendMessage("§c(§8RaveKOTH§c) §7No puedes usar este comando durante el KOTH.");
                 break;
             }
+        }
+
+        // Manejo especial para el comando "f claim"
+        if ($baseCommand === "f" && isset($commandParts[1]) && strtolower($commandParts[1]) === "claim") {
+            $event->cancel();
+            $sender->sendMessage("§c(§8RaveKOTH§c) §7No puedes usar este comando durante el KOTH.");
         }
     }
 }
