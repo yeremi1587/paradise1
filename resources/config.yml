@@ -1,0 +1,31 @@
+# Task delay in ticks (20 ticks = 1 second)
+task-delay: 20
+
+# Time in seconds to capture KOTH
+capture-time: 300
+
+# Bossbar settings
+use-bossbar: true
+color-bossbar: "blue"
+
+# Display settings
+send-tips: true
+send-actionbar: true
+
+# Webhook settings
+use-webhook: false
+webhook-url: ""
+
+# Commands to execute when KOTH ends
+# {player} will be replaced with winner's name
+rewards:
+  - 'give "{player}" diamond 64'
+  - 'give "{player}" gold 64'
+  - 'give "{player}" obsidian 64'
+  - 'give "{player}" 466 64'
+
+# Times when KOTH should automatically start (format: HOUR.MINUTE)
+start-times:
+  - 17.0  # 5:00 PM
+  - 20.0  # 8:00 PM
+  - 22.0  # 10:00 PM
