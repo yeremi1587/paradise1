@@ -24,7 +24,7 @@ class KOTH extends PluginBase {
     private ?KothTask $task = null;
     private ?Arena $current = null;
     private Config $data;
-    private array $arenas = [];
+    protected array $arenas = [];  // Changed from private to protected
     public BossBar $bar;
     public KothConfig $config;
     
