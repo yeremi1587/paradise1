@@ -36,6 +36,6 @@ class listSubCommand extends BaseSubCommand {
     }
 
     protected function prepare(): void {
-        // No additional preparation needed
+        $this->setPermission("maxkoth.command.list");
     }
 }

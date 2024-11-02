@@ -17,11 +17,9 @@ use pocketmine\world\Position;
 use pocketmine\player\Player;
 use pocketmine\network\mcpe\protocol\types\BossBarColor;
 use xenialdan\apibossbar\BossBar;
-use Ifera\ScoreHud\event\TagsResolveEvent;
-use CortexPE\Commando\PacketHooker;
 
 class KOTH extends PluginBase {
-    private static KOTH $instance;
+    protected static KOTH $instance;
     private ?KothTask $task = null;
     private ?Arena $current = null;
     private Config $data;
@@ -195,5 +193,4 @@ class KOTH extends PluginBase {
 
         return "§c(§8RaveKOTH§c) §7El KOTH ha sido detenido";
     }
-
 }
