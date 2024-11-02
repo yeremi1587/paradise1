@@ -17,6 +17,7 @@ use pocketmine\world\Position;
 use pocketmine\player\Player;
 use pocketmine\network\mcpe\protocol\types\BossBarColor;
 use xenialdan\apibossbar\BossBar;
+use CortexPE\Commando\PacketHooker;
 
 class KOTH extends PluginBase {
     protected static KOTH $instance;
