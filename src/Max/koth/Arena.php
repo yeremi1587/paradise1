@@ -31,6 +31,14 @@ class Arena {
         return $this->pos2;
     }
 
+    public function setMin(Position $position): void {
+        $this->pos1 = $position;
+    }
+
+    public function setMax(Position $position): void {
+        $this->pos2 = $position;
+    }
+
     public function setSpawn(Position $position): void {
         $this->spawn = $position;
     }
@@ -45,9 +53,16 @@ class Arena {
         }
 
         $playerPosition = $player->getPosition();
-        return ($playerPosition->getX() >= $this->pos1->getX() && $playerPosition->getX() <= $this->pos2->getX()
-            && $playerPosition->getY() >= $this->pos1->getY() && $playerPosition->getY() <= $this->pos2->getY()
-            && $playerPosition->getZ() >= $this->pos1->getZ() && $playerPosition->getZ() <= $this->pos2->getZ());
+        $minX = min($this->pos1->getX(), $this->pos2->getX());
+        $maxX = max($this->pos1->getX(), $this->pos2->getX());
+        $minY = min($this->pos1->getY(), $this->pos2->getY());
+        $maxY = max($this->pos1->getY(), $this->pos2->getY());
+        $minZ = min($this->pos1->getZ(), $this->pos2->getZ());
+        $maxZ = max($this->pos1->getZ(), $this->pos2->getZ());
+
+        return ($playerPosition->getX() >= $minX && $playerPosition->getX() <= $maxX
+            && $playerPosition->getY() >= $minY && $playerPosition->getY() <= $maxY
+            && $playerPosition->getZ() >= $minZ && $playerPosition->getZ() <= $maxZ);
     }
 
     public function getSpawn(): ?Position {
