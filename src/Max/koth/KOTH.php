@@ -195,4 +195,5 @@ class KOTH extends PluginBase {
 
         return "§c(§8RaveKOTH§c) §7El KOTH ha sido detenido";
     }
+
 }
