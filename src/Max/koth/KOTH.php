@@ -61,17 +61,30 @@ class KOTH extends PluginBase {
 
     private function loadArenas(): void {
         foreach ($this->data->getAll() as $name => $arenaData) {
-            $world = $this->getServer()->getWorldManager()->getWorldByName($arenaData["pos1"][3]);
-            if ($world === null) continue;
+            if (!isset($arenaData["pos1"]) || !isset($arenaData["pos2"]) || !isset($arenaData["pos1"][3]) || !isset($arenaData["pos2"][3])) {
+                $this->getLogger()->warning("Arena '$name' has invalid data and will be skipped.");
+                continue;
+            }
 
-            $pos1 = new Position($arenaData["pos1"][0], $arenaData["pos1"][1], $arenaData["pos1"][2], $world);
-            $pos2 = new Position($arenaData["pos2"][0], $arenaData["pos2"][1], $arenaData["pos2"][2], $world);
-            
-            $this->arenas[$name] = new Arena($name, $pos1, $pos2);
-            
-            if (isset($arenaData["spawn"])) {
-                $spawn = new Position($arenaData["spawn"][0], $arenaData["spawn"][1], $arenaData["spawn"][2], $world);
-                $this->arenas[$name]->setSpawn($spawn);
+            $world = $this->getServer()->getWorldManager()->getWorldByName($arenaData["pos1"][3]);
+            if ($world === null) {
+                $this->getLogger()->warning("World '{$arenaData["pos1"][3]}' not found for arena '$name'.");
+                continue;
+            }
+
+            try {
+                $pos1 = new Position($arenaData["pos1"][0], $arenaData["pos1"][1], $arenaData["pos1"][2], $world);
+                $pos2 = new Position($arenaData["pos2"][0], $arenaData["pos2"][1], $arenaData["pos2"][2], $world);
+                
+                $this->arenas[$name] = new Arena($name, $pos1, $pos2);
+                
+                if (isset($arenaData["spawn"]) && is_array($arenaData["spawn"]) && count($arenaData["spawn"]) >= 4) {
+                    $spawn = new Position($arenaData["spawn"][0], $arenaData["spawn"][1], $arenaData["spawn"][2], $world);
+                    $this->arenas[$name]->setSpawn($spawn);
+                }
+            } catch (\Throwable $e) {
+                $this->getLogger()->warning("Failed to load arena '$name': " . $e->getMessage());
+                continue;
             }
         }
     }
