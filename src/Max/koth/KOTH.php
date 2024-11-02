@@ -24,7 +24,7 @@ class KOTH extends PluginBase {
     private ?KothTask $task = null;
     private ?Arena $current = null;
     private Config $data;
-    protected array $arenas = [];  // Changed from private to protected
+    protected array $arenas = [];
     public BossBar $bar;
     public KothConfig $config;
     
@@ -37,6 +37,9 @@ class KOTH extends PluginBase {
         $this->data = new Config($this->getDataFolder() . "data.yml", Config::YAML);
         
         $this->config = new KothConfig($configFile->getAll());
+
+        // Cargar arenas guardadas
+        $this->loadArenas();
 
         if ($this->config->USE_BOSSBAR) {
             $this->bar = new BossBar();
@@ -53,6 +56,23 @@ class KOTH extends PluginBase {
         $this->getServer()->getCommandMap()->register("koth", new kothCommand($this, "koth", "KOTH commands prefix"));
 
         $this->getScheduler()->scheduleRepeatingTask(new StartKothTask($this), 600);
+    }
+
+    private function loadArenas(): void {
+        foreach ($this->data->getAll() as $name => $arenaData) {
+            $world = $this->getServer()->getWorldManager()->getWorldByName($arenaData["pos1"][3]);
+            if ($world === null) continue;
+
+            $pos1 = new Position($arenaData["pos1"][0], $arenaData["pos1"][1], $arenaData["pos1"][2], $world);
+            $pos2 = new Position($arenaData["pos2"][0], $arenaData["pos2"][1], $arenaData["pos2"][2], $world);
+            
+            $this->arenas[$name] = new Arena($name, $pos1, $pos2);
+            
+            if (isset($arenaData["spawn"])) {
+                $spawn = new Position($arenaData["spawn"][0], $arenaData["spawn"][1], $arenaData["spawn"][2], $world);
+                $this->arenas[$name]->setSpawn($spawn);
+            }
+        }
     }
 
     public static function getInstance(): KOTH {
@@ -104,8 +124,8 @@ class KOTH extends PluginBase {
 
         $this->arenas[$name] = new Arena($name, $pos1, $pos2);
         $this->data->set($name, [
-            "pos1" => [$pos1->x, $pos1->y, $pos1->z, $pos1->getWorld()->getFolderName()],
-            "pos2" => [$pos2->x, $pos2->y, $pos2->z, $pos2->getWorld()->getFolderName()]
+            "pos1" => [$pos1->getX(), $pos1->getY(), $pos1->getZ(), $pos1->getWorld()->getFolderName()],
+            "pos2" => [$pos2->getX(), $pos2->getY(), $pos2->getZ(), $pos2->getWorld()->getFolderName()]
         ]);
         $this->data->save();
 

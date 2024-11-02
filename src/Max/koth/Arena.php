@@ -41,6 +41,14 @@ class Arena {
 
     public function setSpawn(Position $position): void {
         $this->spawn = $position;
+        
+        // Guardar el spawn en data.yml
+        $plugin = KOTH::getInstance();
+        $data = $plugin->getData();
+        $arenaData = $data->get($this->name, []);
+        $arenaData["spawn"] = [$position->getX(), $position->getY(), $position->getZ(), $position->getWorld()->getFolderName()];
+        $data->set($this->name, $arenaData);
+        $data->save();
     }
 
     public function removeSpawn(): void {
