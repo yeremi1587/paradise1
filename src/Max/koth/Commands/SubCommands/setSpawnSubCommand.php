@@ -11,7 +11,7 @@ use pocketmine\command\CommandSender;
 use pocketmine\player\Player;
 use pocketmine\world\Position;
 
-class pos1SubCommand extends BaseSubCommand {
+class setSpawnSubCommand extends BaseSubCommand {
     private KOTH $plugin;
 
     public function __construct(string $name, string $description = "", array $aliases = []) {
@@ -31,13 +31,13 @@ class pos1SubCommand extends BaseSubCommand {
         }
 
         $position = $sender->getPosition();
-        $arena->setMin($position);
+        $arena->setSpawn($position);
         
-        $sender->sendMessage("KOTH » §7Posición 1 establecida correctamente");
+        $sender->sendMessage("KOTH » §7Spawn establecido correctamente");
     }
 
     protected function prepare(): void {
-        $this->setPermission("maxkoth.command.pos1");
+        $this->setPermission("maxkoth.command.setspawn");
         $this->registerArgument(0, new StringArgument("arena", false));
     }
 }

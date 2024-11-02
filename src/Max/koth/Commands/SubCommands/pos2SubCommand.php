@@ -26,14 +26,14 @@ class pos2SubCommand extends BaseSubCommand {
 
         $arena = $this->plugin->getArena($args["arena"]);
         if ($arena === null) {
-            $sender->sendMessage("§c(§8RaveKOTH§c) §7No existe una arena con ese nombre");
+            $sender->sendMessage("KOTH » §7No existe una arena con ese nombre");
             return;
         }
 
         $position = $sender->getPosition();
         $arena->setMax($position);
         
-        $sender->sendMessage("§c(§8RaveKOTH§c) §7Posición 2 establecida correctamente");
+        $sender->sendMessage("KOTH » §7Posición 2 establecida correctamente");
     }
 
     protected function prepare(): void {

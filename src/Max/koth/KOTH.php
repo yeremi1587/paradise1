@@ -99,7 +99,7 @@ class KOTH extends PluginBase {
 
     public function createArena(string $name, Position $pos1, Position $pos2): string {
         if (isset($this->arenas[$name])) {
-            return "§c(§8RaveKOTH§c) §7Ya existe una arena con ese nombre";
+            return "KOTH » §7Ya existe una arena con ese nombre";
         }
 
         $this->arenas[$name] = new Arena($name, $pos1, $pos2);
@@ -109,24 +109,24 @@ class KOTH extends PluginBase {
         ]);
         $this->data->save();
 
-        return "§c(§8RaveKOTH§c) §7Arena creada correctamente";
+        return "KOTH » §7Arena creada correctamente";
     }
 
     public function deleteArena(string $name): string {
         if (!isset($this->arenas[$name])) {
-            return "§c(§8RaveKOTH§c) §7No existe una arena con ese nombre";
+            return "KOTH » §7No existe una arena con ese nombre";
         }
 
         unset($this->arenas[$name]);
         $this->data->remove($name);
         $this->data->save();
 
-        return "§c(§8RaveKOTH§c) §7Arena eliminada correctamente";
+        return "KOTH » §7Arena eliminada correctamente";
     }
 
     public function startKoth(Arena $arena): string {
         if ($this->isRunning()) {
-            return "§c(§8RaveKOTH§c) §7El KOTH ya está en ejecución";
+            return "KOTH » §7El KOTH ya está en ejecución";
         }
 
         $this->task = $this->getScheduler()->scheduleRepeatingTask(new KothTask($this, $arena), $this->config->TASK_DELAY);
@@ -151,7 +151,7 @@ class KOTH extends PluginBase {
             $webhook->send($msg);
         }
 
-        return "§c(§8RaveKOTH§c) §7El KOTH ha sido iniciado";
+        return "KOTH » §7El KOTH ha sido iniciado";
     }
 
     public function stopKoth(string $winnerName = null): string {
@@ -192,6 +192,6 @@ class KOTH extends PluginBase {
             $webhook->send($msg);
         }
 
-        return "§c(§8RaveKOTH§c) §7El KOTH ha sido detenido";
+        return "KOTH » §7El KOTH ha sido detenido";
     }
 }
