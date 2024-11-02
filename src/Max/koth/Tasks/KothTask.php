@@ -23,7 +23,7 @@ class KothTask extends Task {
 
     public function onRun(): void {
         if (isset($this->king) && $this->king->isOnline() && $this->arena->isInside($this->king)) {
-            if (time() - $this->captureTime >= $this->pl->CAPTURE_TIME) {
+            if (time() - $this->captureTime >= $this->pl->config->CAPTURE_TIME) {
                 $this->pl->stopKoth($this->kingName);
                 return;
             }
@@ -52,19 +52,19 @@ class KothTask extends Task {
     }
 
     private function updateDisplays(): void {
-        $timeLeft = $this->pl->CAPTURE_TIME - (time() - $this->captureTime);
+        $timeLeft = $this->pl->config->CAPTURE_TIME - (time() - $this->captureTime);
         $minutes = floor($timeLeft / 60);
         $seconds = sprintf("%02d", ($timeLeft - ($minutes * 60)));
 
-        if ($this->pl->USE_BOSSBAR) {
+        if ($this->pl->config->USE_BOSSBAR) {
             $this->updateBossBar($minutes, $seconds, $timeLeft);
         }
 
-        if ($this->pl->SEND_TIPS) {
+        if ($this->pl->config->SEND_TIPS) {
             $this->updateTips($minutes, $seconds);
         }
 
-        if ($this->pl->SEND_ACTIONBAR) {
+        if ($this->pl->config->SEND_ACTIONBAR) {
             $this->updateActionBar($minutes, $seconds, $timeLeft);
         }
     }
@@ -72,8 +72,8 @@ class KothTask extends Task {
     private function updateBossBar(int $minutes, string $seconds, int $timeLeft): void {
         $this->pl->bar->setTitle("§uKOTH: §t" . $this->arena->getName() . "§r - §uTime: §t" . $minutes . ":" . $seconds);
         $this->pl->bar->setSubTitle("§uKing: §t" . $this->kingName);
-        $this->pl->bar->setPercentage($timeLeft / $this->pl->CAPTURE_TIME);
-        $this->pl->setBossBarColor((string)$this->pl->COLOR_BOSSBAR);
+        $this->pl->bar->setPercentage($timeLeft / $this->pl->config->CAPTURE_TIME);
+        $this->pl->setBossBarColor((string)$this->pl->config->COLOR_BOSSBAR);
     }
 
     private function updateTips(int $minutes, string $seconds): void {
@@ -84,7 +84,7 @@ class KothTask extends Task {
 
     private function updateActionBar(int $minutes, string $seconds, int $timeLeft): void {
         $barMessage = "§7KOTH: §f" . $this->arena->getName() . " §7Time: §f" . $minutes . ":" . $seconds . "\n§7King: §f" . $this->kingName;
-        $timePercentage = 100 * (1 - ($timeLeft / $this->pl->CAPTURE_TIME));
+        $timePercentage = 100 * (1 - ($timeLeft / $this->pl->config->CAPTURE_TIME));
         $barText = $this->generateProgressBar($timePercentage);
 
         foreach (Server::getInstance()->getOnlinePlayers() as $player) {
