@@ -33,26 +33,61 @@ class Arena {
 
     public function setMin(Position $position): void {
         $this->pos1 = $position;
+        $this->saveToConfig();
     }
 
     public function setMax(Position $position): void {
         $this->pos2 = $position;
+        $this->saveToConfig();
     }
 
     public function setSpawn(Position $position): void {
         $this->spawn = $position;
-        
-        // Guardar el spawn en data.yml
+        $this->saveToConfig();
+    }
+
+    private function saveToConfig(): void {
         $plugin = KOTH::getInstance();
         $data = $plugin->getData();
-        $arenaData = $data->get($this->name, []);
-        $arenaData["spawn"] = [$position->getX(), $position->getY(), $position->getZ(), $position->getWorld()->getFolderName()];
+        
+        $arenaData = [
+            "name" => $this->name
+        ];
+        
+        if ($this->pos1 !== null) {
+            $arenaData["pos1"] = [
+                $this->pos1->getX(),
+                $this->pos1->getY(),
+                $this->pos1->getZ(),
+                $this->pos1->getWorld()->getFolderName()
+            ];
+        }
+        
+        if ($this->pos2 !== null) {
+            $arenaData["pos2"] = [
+                $this->pos2->getX(),
+                $this->pos2->getY(),
+                $this->pos2->getZ(),
+                $this->pos2->getWorld()->getFolderName()
+            ];
+        }
+        
+        if ($this->spawn !== null) {
+            $arenaData["spawn"] = [
+                $this->spawn->getX(),
+                $this->spawn->getY(),
+                $this->spawn->getZ(),
+                $this->spawn->getWorld()->getFolderName()
+            ];
+        }
+
         $data->set($this->name, $arenaData);
         $data->save();
     }
 
     public function removeSpawn(): void {
         $this->spawn = null;
+        $this->saveToConfig();
     }
 
     public function isInside(Player $player): bool {
