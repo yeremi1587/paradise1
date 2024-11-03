@@ -56,14 +56,12 @@ class KothTask extends Task {
         $minutes = floor($timeLeft / 60);
         $seconds = sprintf("%02d", ($timeLeft - ($minutes * 60)));
 
+        // Actualizar solo el bossbar si está habilitado
         if ($this->pl->config->USE_BOSSBAR) {
             $this->updateBossBar($minutes, $seconds, $timeLeft);
         }
 
-        if ($this->pl->config->SEND_TIPS) {
-            $this->updateTips($minutes, $seconds);
-        }
-
+        // Mostrar solo el actionbar si está habilitado
         if ($this->pl->config->SEND_ACTIONBAR) {
             $this->updateActionBar($minutes, $seconds, $timeLeft);
         }
@@ -74,12 +72,6 @@ class KothTask extends Task {
         $this->pl->bar->setSubTitle("§uKing: §t" . $this->kingName);
         $this->pl->bar->setPercentage($timeLeft / $this->pl->config->CAPTURE_TIME);
         $this->pl->setBossBarColor((string)$this->pl->config->COLOR_BOSSBAR);
-    }
-
-    private function updateTips(int $minutes, string $seconds): void {
-        foreach (Server::getInstance()->getOnlinePlayers() as $player) {
-            $player->sendTip("§uKOTH: §t" . $this->arena->getName() . "§r - §uTime: §t" . $minutes . ":" . $seconds . "\n§uKing: §t" . $this->kingName);
-        }
     }
 
     private function updateActionBar(int $minutes, string $seconds, int $timeLeft): void {
