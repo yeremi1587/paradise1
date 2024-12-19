@@ -8,6 +8,7 @@ use Max\koth\Integration\FactionsManager;
 use pocketmine\player\Player;
 use pocketmine\scheduler\Task;
 use pocketmine\Server;
+use pocketmine\utils\TextFormat as TF;
 
 class KothTask extends Task {
     private ?Player $king = null;
@@ -26,6 +27,11 @@ class KothTask extends Task {
 
     public function onRun(): void {
         if (isset($this->king) && $this->king->isOnline() && $this->arena->isInside($this->king)) {
+            if (!$this->factionsManager->canParticipate($this->king)) {
+                $this->resetKing();
+                return;
+            }
+
             if (time() - $this->captureTime >= $this->pl->config->CAPTURE_TIME) {
                 $this->pl->stopKoth($this->kingName);
                 return;

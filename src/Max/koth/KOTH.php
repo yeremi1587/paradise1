@@ -167,26 +167,33 @@ class KOTH extends PluginBase {
         $this->taskHandler = $this->getScheduler()->scheduleRepeatingTask(new KothTask($this, $arena), $this->config->TASK_DELAY);
         $this->current = $arena;
         $arenaName = $arena->getName();
+        $pos = $arena->getSpawn();
+        $coords = round($pos->getX(), 2) . " " . round($pos->getY(), 2) . " " . round($pos->getZ(), 2);
 
-        if ($this->config->USE_BOSSBAR) {
-            foreach ($this->getServer()->getOnlinePlayers() as $player) {
+        $message = "KOTH » §7El KOTH ha sido iniciado en §f" . $arenaName . "\n";
+        $message .= "§7Coordenadas: §f" . $coords;
+
+        foreach ($this->getServer()->getOnlinePlayers() as $player) {
+            if ($this->config->USE_BOSSBAR) {
                 $this->bar->addPlayer($player);
             }
-            $this->setBossBarColor($this->config->COLOR_BOSSBAR);
+            $player->sendMessage($message);
         }
+
+        $this->setBossBarColor($this->config->COLOR_BOSSBAR);
 
         if ($this->config->USE_WEBHOOK) {
             $webhook = new Webhook($this->config->WEBHOOK_URL);
             $msg = new Message();
             $embed = new Embed();
             $embed->setTitle("KOTH Started");
-            $embed->setDescription("A new KOTH event has started at arena " . $arenaName);
+            $embed->setDescription("A new KOTH event has started at arena " . $arenaName . "\nCoordinates: " . $coords);
             $embed->setColor(0x00ff00);
             $msg->addEmbed($embed);
             $webhook->send($msg);
         }
 
-        return "KOTH » §7El KOTH ha sido iniciado";
+        return $message;
     }
 
     public function stopKoth(string $winnerName = null): string {
@@ -230,3 +237,4 @@ class KOTH extends PluginBase {
         return "KOTH » §7El KOTH ha sido detenido";
     }
 }
+
