@@ -9,6 +9,7 @@ use Max\koth\KOTH;
 use rxduz\factions\faction\FactionManager;
 use pocketmine\utils\TextFormat as TF;
 use rxduz\factions\player\PlayerManager;
+use rxduz\factions\faction\Faction;
 
 class FactionsManager {
     private KOTH $plugin;
@@ -26,13 +27,17 @@ class FactionsManager {
 
         // First check if player is in any faction
         $playerSession = PlayerManager::getInstance()->getSessionByName($player->getName());
-        if ($playerSession === null || $playerSession->getFaction() === null) {
+        if ($playerSession === null) {
             $player->sendMessage(TF::RED . "You cannot participate in KOTH without being in a faction.");
             return false;
         }
 
-        // Get player's faction and check power
         $faction = $playerSession->getFaction();
+        if (!$faction instanceof Faction) {
+            $player->sendMessage(TF::RED . "You cannot participate in KOTH without being in a faction.");
+            return false;
+        }
+
         if ($faction->getPower() < $this->minPower) {
             $player->sendMessage(TF::RED . "Your faction needs at least " . $this->minPower . " power to participate in KOTH.");
             return false;
