@@ -25,12 +25,12 @@ class FactionsManager {
 
         $faction = FactionManager::getInstance()->getFactionByName($player->getName());
         if ($faction === null) {
-            $player->sendMessage(TF::RED . "No puedes participar en el KOTH sin pertenecer a una facción.");
+            $player->sendMessage(TF::RED . "You cannot participate in KOTH without being in a faction.");
             return false;
         }
 
         if ($faction->getPower() < $this->minPower) {
-            $player->sendMessage(TF::RED . "Tu facción necesita al menos " . $this->minPower . " de poder para participar en el KOTH.");
+            $player->sendMessage(TF::RED . "Your faction needs at least " . $this->minPower . " power to participate in KOTH.");
             return false;
         }
 

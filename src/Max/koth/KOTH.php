@@ -134,7 +134,7 @@ class KOTH extends PluginBase {
 
     public function createArena(string $name, Position $pos1, Position $pos2): string {
         if (isset($this->arenas[$name])) {
-            return "KOTH » §7Ya existe una arena con ese nombre";
+            return "KOTH » An arena with that name already exists";
         }
 
         $this->arenas[$name] = new Arena($name, $pos1, $pos2);
@@ -144,24 +144,24 @@ class KOTH extends PluginBase {
         ]);
         $this->data->save();
 
-        return "KOTH » §7Arena creada correctamente";
+        return "KOTH » Arena created successfully";
     }
 
     public function deleteArena(string $name): string {
         if (!isset($this->arenas[$name])) {
-            return "KOTH » §7No existe una arena con ese nombre";
+            return "KOTH » An arena with that name doesn't exist";
         }
 
         unset($this->arenas[$name]);
         $this->data->remove($name);
         $this->data->save();
 
-        return "KOTH » §7Arena eliminada correctamente";
+        return "KOTH » Arena deleted successfully";
     }
 
     public function startKoth(Arena $arena): string {
         if ($this->isRunning()) {
-            return "KOTH » §7El KOTH ya está en ejecución";
+            return "KOTH » KOTH is already running";
         }
 
         $this->taskHandler = $this->getScheduler()->scheduleRepeatingTask(new KothTask($this, $arena), $this->config->TASK_DELAY);
@@ -170,8 +170,8 @@ class KOTH extends PluginBase {
         $pos = $arena->getSpawn();
         $coords = round($pos->getX(), 2) . " " . round($pos->getY(), 2) . " " . round($pos->getZ(), 2);
 
-        $message = "KOTH » §7El KOTH ha sido iniciado en §f" . $arenaName . "\n";
-        $message .= "§7Coordenadas: §f" . $coords;
+        $message = "KOTH » KOTH has started in §f" . $arenaName . "\n";
+        $message .= "§7Coordinates: §f" . $coords;
 
         foreach ($this->getServer()->getOnlinePlayers() as $player) {
             if ($this->config->USE_BOSSBAR) {
@@ -198,7 +198,7 @@ class KOTH extends PluginBase {
 
     public function stopKoth(string $winnerName = null): string {
         if (!$this->isRunning()) {
-            return "KOTH » §7No hay ningún evento de KOTH en ejecución";
+            return "KOTH » No KOTH event is currently running";
         }
 
         if ($winnerName !== null) {
@@ -234,7 +234,6 @@ class KOTH extends PluginBase {
             $webhook->send($msg);
         }
 
-        return "KOTH » §7El KOTH ha sido detenido";
+        return "KOTH » The KOTH has been stopped";
     }
 }
-
