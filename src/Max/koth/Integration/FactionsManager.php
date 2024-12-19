@@ -25,14 +25,23 @@ class FactionsManager {
             return true;
         }
 
-        // First check if player is in any faction
-        $playerSession = PlayerManager::getInstance()->getSessionByName($player->getName());
+        $playerManager = PlayerManager::getInstance();
+        $playerSession = $playerManager->getSessionByName($player->getName());
+        
         if ($playerSession === null) {
+            $player->sendMessage(TF::RED . "Error checking faction status.");
+            return false;
+        }
+
+        $factionName = $playerSession->getFaction();
+        if (empty($factionName)) {
             $player->sendMessage(TF::RED . "You cannot participate in KOTH without being in a faction.");
             return false;
         }
 
-        $faction = $playerSession->getFaction();
+        $factionManager = FactionManager::getInstance();
+        $faction = $factionManager->getFaction($factionName);
+        
         if (!$faction instanceof Faction) {
             $player->sendMessage(TF::RED . "You cannot participate in KOTH without being in a faction.");
             return false;
