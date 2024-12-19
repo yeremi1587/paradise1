@@ -23,7 +23,7 @@ use pocketmine\scheduler\TaskHandler;
 class KOTH extends PluginBase {
     protected static KOTH $instance;
     private ?TaskHandler $taskHandler = null;
-    private ?Arena $current = null;
+    protected ?Arena $current = null;
     private Config $data;
     protected array $arenas = [];
     public BossBar $bar;
