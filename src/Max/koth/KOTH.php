@@ -19,6 +19,7 @@ use pocketmine\network\mcpe\protocol\types\BossBarColor;
 use xenialdan\apibossbar\BossBar;
 use CortexPE\Commando\PacketHooker;
 use pocketmine\scheduler\TaskHandler;
+use pocketmine\console\ConsoleCommandSender;
 
 class KOTH extends PluginBase {
     protected static KOTH $instance;
@@ -198,7 +199,7 @@ class KOTH extends PluginBase {
             if ($winner instanceof Player) {
                 foreach ($this->config->REWARDS as $command) {
                     $this->getServer()->dispatchCommand(
-                        $this->getServer()->getConsoleSender(),
+                        new ConsoleCommandSender($this->getServer(), $this->getServer()->getLanguage()),
                         str_replace("{player}", $winnerName, $command)
                     );
                 }
