@@ -4,6 +4,7 @@ namespace Max\koth\Tasks;
 
 use Max\koth\Arena;
 use Max\koth\KOTH;
+use Max\koth\Integration\FactionsManager;
 use pocketmine\player\Player;
 use pocketmine\scheduler\Task;
 use pocketmine\Server;
@@ -14,10 +15,12 @@ class KothTask extends Task {
     private int $captureTime;
     private KOTH $pl;
     private Arena $arena;
+    private FactionsManager $factionsManager;
 
     public function __construct(KOTH $pl, Arena $arena) {
         $this->pl = $pl;
         $this->arena = $arena;
+        $this->factionsManager = new FactionsManager($pl, $pl->config->MIN_FACTION_POWER);
         $this->resetKing();
     }
 
@@ -43,7 +46,7 @@ class KothTask extends Task {
         shuffle($onlinePlayers);
         
         foreach ($onlinePlayers as $player) {
-            if ($this->arena->isInside($player)) {
+            if ($this->arena->isInside($player) && $this->factionsManager->canParticipate($player)) {
                 $this->king = $player;
                 $this->kingName = $player->getName();
                 break;
@@ -56,12 +59,10 @@ class KothTask extends Task {
         $minutes = floor($timeLeft / 60);
         $seconds = sprintf("%02d", ($timeLeft - ($minutes * 60)));
 
-        // Actualizar solo el bossbar si está habilitado
         if ($this->pl->config->USE_BOSSBAR) {
             $this->updateBossBar($minutes, $seconds, $timeLeft);
         }
 
-        // Mostrar solo el actionbar si está habilitado
         if ($this->pl->config->SEND_ACTIONBAR) {
             $this->updateActionBar($minutes, $seconds, $timeLeft);
         }

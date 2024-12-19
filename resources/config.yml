@@ -16,6 +16,10 @@ send-actionbar: true
 use-webhook: false
 webhook-url: ""
 
+# Factions settings
+min-faction-power: 100
+require-faction: true
+
 # Commands to execute when KOTH ends
 # {player} will be replaced with winner's name
 rewards:

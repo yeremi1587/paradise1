@@ -15,6 +15,8 @@ class KothConfig {
     public string $WEBHOOK_URL = "";
     public array $REWARDS = [];
     public array $START_TIMES = [];
+    public int $MIN_FACTION_POWER = 100;
+    public bool $REQUIRE_FACTION = true;
 
     public function __construct(array $config) {
         $this->TASK_DELAY = $config["task-delay"] ?? 20;
@@ -27,5 +29,7 @@ class KothConfig {
         $this->WEBHOOK_URL = $config["webhook-url"] ?? "";
         $this->REWARDS = $config["rewards"] ?? [];
         $this->START_TIMES = $config["start-times"] ?? [];
+        $this->MIN_FACTION_POWER = $config["min-faction-power"] ?? 100;
+        $this->REQUIRE_FACTION = $config["require-faction"] ?? true;
     }
 }
