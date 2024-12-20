@@ -16,13 +16,15 @@ class StatsForm extends SimpleForm {
             }
         });
 
+        $stats = Main::getInstance()->getStatsManager()->getStats($player);
+        
         $this->setTitle("§l§6Mining Statistics");
         $this->setContent(
             "§7Your Mining Statistics:\n\n" .
-            "§fBlocks Mined: §a0\n" .
-            "§fCoins Earned: §a0\n" .
-            "§fCurrent Multiplier: §ax1\n" .
-            "§fSpecial Blocks Found: §a0"
+            "§fBlocks Mined: §a" . $stats['blocksMined'] . "\n" .
+            "§fCoins Earned: §a" . $stats['coinsEarned'] . "\n" .
+            "§fCurrent Multiplier: §ax" . $stats['multiplier'] . "\n" .
+            "§fSpecial Blocks Found: §a" . $stats['specialBlocksFound']
         );
         
         $this->addButton("§c« §fBack to Menu", 0);

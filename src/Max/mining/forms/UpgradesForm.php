@@ -31,17 +31,19 @@ class UpgradesForm extends SimpleForm {
 
     private function purchaseUpgrade(Player $player, int $level): void {
         $costs = [
-            1 => 10000,
-            2 => 25000,
-            3 => 50000
+            1 => [10000, 2.0],
+            2 => [25000, 3.0],
+            3 => [50000, 4.0]
         ];
 
         if(isset($costs[$level])) {
-            $cost = $costs[$level];
+            [$cost, $multiplier] = $costs[$level];
             $economy = Main::getInstance()->getEconomy();
+            $statsManager = Main::getInstance()->getStatsManager();
             
             if($economy->myMoney($player) >= $cost) {
                 $economy->reduceMoney($player, $cost);
+                $statsManager->setMultiplier($player, $multiplier);
                 $player->sendMessage("§aSuccessfully purchased Level $level Upgrade!");
             } else {
                 $player->sendMessage("§cYou don't have enough money for this upgrade!");

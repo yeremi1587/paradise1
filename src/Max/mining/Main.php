@@ -13,11 +13,15 @@ use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use onebone\economyapi\EconomyAPI;
 use Max\mining\forms\MainForm;
+use Max\mining\managers\StatsManager;
+use Max\mining\managers\EventManager;
 
 class Main extends PluginBase implements Listener {
     private Config $config;
     private static Main $instance;
     private EconomyAPI $economy;
+    private StatsManager $statsManager;
+    private EventManager $eventManager;
 
     public function onEnable(): void {
         self::$instance = $this;
@@ -26,6 +30,10 @@ class Main extends PluginBase implements Listener {
         // Save default config
         $this->saveDefaultConfig();
         $this->config = $this->getConfig();
+        
+        // Initialize managers
+        $this->statsManager = new StatsManager($this);
+        $this->eventManager = new EventManager($this);
         
         // Check for EconomyAPI
         $economy = $this->getServer()->getPluginManager()->getPlugin("EconomyAPI");
@@ -44,6 +52,14 @@ class Main extends PluginBase implements Listener {
 
     public function getEconomy(): EconomyAPI {
         return $this->economy;
+    }
+
+    public function getStatsManager(): StatsManager {
+        return $this->statsManager;
+    }
+
+    public function getEventManager(): EventManager {
+        return $this->eventManager;
     }
 
     public function onCommand(CommandSender $sender, Command $command, string $label, array $args): bool {
@@ -72,10 +88,23 @@ class Main extends PluginBase implements Listener {
             return;
         }
 
+        $multiplier = $this->statsManager->getMultiplier($player);
+        
+        // Check if during event for additional multiplier
+        if($this->eventManager->isEventActive()) {
+            $eventLoc = $this->eventManager->getEventLocation();
+            if($eventLoc !== null && $block->getPosition()->distance($eventLoc) <= 10) {
+                $multiplier *= 2;
+            }
+        }
+
         // Basic stone mining reward
         if($block->isSameType(VanillaBlocks::STONE())) {
-            $this->economy->addMoney($player, 2);
-            $player->sendPopup("§a+2 coins");
+            $reward = (int)(2 * $multiplier);
+            $this->economy->addMoney($player, $reward);
+            $this->statsManager->addBlockMined($player, 'stone');
+            $this->statsManager->addCoinsEarned($player, $reward);
+            $player->sendPopup("§a+$reward coins");
             return;
         }
 
@@ -87,8 +116,11 @@ class Main extends PluginBase implements Listener {
         ];
 
         if(isset($rewards[$block->getTypeId()])) {
-            $reward = $rewards[$block->getTypeId()];
+            $baseReward = $rewards[$block->getTypeId()];
+            $reward = (int)($baseReward * $multiplier);
             $this->economy->addMoney($player, $reward);
+            $this->statsManager->addBlockMined($player, $block->getName());
+            $this->statsManager->addCoinsEarned($player, $reward);
             $player->sendPopup("§a+$reward coins");
         }
     }
