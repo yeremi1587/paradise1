@@ -40,7 +40,6 @@ class FactionsManager {
         }
 
         $factionManager = FactionManager::getInstance();
-        // Using getFactionByName instead of getByName
         $faction = $factionManager->getFactionByName($factionName);
         
         if (!$faction instanceof Faction) {
@@ -48,8 +47,9 @@ class FactionsManager {
             return false;
         }
 
-        if ($faction->getPower() < $this->minPower) {
-            $player->sendMessage(TF::RED . "Your faction needs at least " . $this->minPower . " power to participate in KOTH.");
+        $currentPower = $faction->getPower();
+        if ($currentPower < $this->minPower) {
+            $player->sendMessage(TF::RED . "Your faction needs at least " . $this->minPower . " power to participate in KOTH. Current power: " . $currentPower);
             return false;
         }
 
