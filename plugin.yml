@@ -1,5 +1,5 @@
 name: AdvancedMiningSystem
-main: Max\mining\Main
+main: Paradise\Mining\Main
 version: 1.0.0
 api: 5.0.0
 depend: [EconomyAPI]
