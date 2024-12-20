@@ -40,7 +40,8 @@ class FactionsManager {
         }
 
         $factionManager = FactionManager::getInstance();
-        $faction = $factionManager->getFaction($factionName);
+        // Using getByName instead of getFaction
+        $faction = $factionManager->getByName($factionName);
         
         if (!$faction instanceof Faction) {
             $player->sendMessage(TF::RED . "You cannot participate in KOTH without being in a faction.");
