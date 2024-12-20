@@ -5,10 +5,19 @@ api: 5.0.0
 depend: [EconomyAPI]
 author: Paradise
 
+commands:
+  mining:
+    description: Main command for AdvancedMiningSystem
+    usage: "/mining"
+    permission: advancedmining.use
+
 permissions:
   advancedmining.admin:
     default: op
     description: Allows access to all AdvancedMining admin commands
+  advancedmining.use:
+    default: true
+    description: Allows players to use basic mining commands
 
 # Adding virion dependency for FormsUI
 virions:
