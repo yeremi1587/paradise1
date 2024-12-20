@@ -9,7 +9,10 @@ use pocketmine\player\Player;
 use pocketmine\event\block\BlockBreakEvent;
 use pocketmine\block\Block;
 use pocketmine\block\VanillaBlocks;
+use pocketmine\command\Command;
+use pocketmine\command\CommandSender;
 use onebone\economyapi\EconomyAPI;
+use Max\mining\forms\MainForm;
 
 class Main extends PluginBase implements Listener {
     private Config $config;
@@ -37,6 +40,20 @@ class Main extends PluginBase implements Listener {
 
     public static function getInstance(): Main {
         return self::$instance;
+    }
+
+    public function onCommand(CommandSender $sender, Command $command, string $label, array $args): bool {
+        if($command->getName() === "mining") {
+            if(!($sender instanceof Player)) {
+                $sender->sendMessage("§cThis command can only be used in-game!");
+                return true;
+            }
+            
+            $form = new MainForm();
+            $form->sendTo($sender);
+            return true;
+        }
+        return false;
     }
 
     /**

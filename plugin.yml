@@ -9,3 +9,7 @@ permissions:
   advancedmining.admin:
     default: op
     description: Allows access to all AdvancedMining admin commands
+
+# Adding virion dependency for FormsUI
+virions:
+  - FormsUI
