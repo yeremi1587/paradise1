@@ -2,37 +2,37 @@
 
 namespace Max\mining\forms;
 
-use pocketmine\player\Player;
 use Vecnavium\FormsUI\SimpleForm;
+use pocketmine\player\Player;
 
-class MainForm {
-    public function sendTo(Player $player): void {
-        $form = new SimpleForm(function(Player $player, ?int $data) {
+class MainForm extends SimpleForm {
+    public function __construct() {
+        parent::__construct(function (Player $player, ?int $data = null) {
             if($data === null) return;
             
             switch($data) {
                 case 0: // Stats
-                    // TODO: Implement stats form
+                    // TODO: Show stats form
                     break;
                 case 1: // Upgrades
-                    // TODO: Implement upgrades form
+                    // TODO: Show upgrades form
                     break;
-                case 2: // Block Exchange
-                    // TODO: Implement block exchange form
+                case 2: // Exchange
+                    // TODO: Show exchange form
                     break;
-                case 3: // Leaderboard
-                    // TODO: Implement leaderboard form
+                case 3: // Top miners
+                    // TODO: Show top miners form
                     break;
             }
         });
 
-        $form->setTitle("§l§6Mining System");
-        $form->setContent("§7Select an option:");
-        $form->addButton("§l§bMining Stats\n§r§7View your statistics", 0, "textures/ui/icon_book_writable");
-        $form->addButton("§l§aMining Upgrades\n§r§7Purchase upgrades", 0, "textures/ui/icon_upgrade");
-        $form->addButton("§l§eBlock Exchange\n§r§7Exchange blocks for coins", 0, "textures/ui/icon_trade");
-        $form->addButton("§l§6Leaderboard\n§r§7View top miners", 0, "textures/ui/icon_multiplayer");
+        $this->setTitle("§l§6Mining System");
+        $this->setContent("§7Select an option:");
         
-        $form->sendToPlayer($player);
+        $this->addButton("§a» §fMining Stats\n§7View your statistics", 0);
+        $this->addButton("§a» §fUpgrades\n§7Buy mining upgrades", 1);
+        $this->addButton("§a» §fExchange Blocks\n§7Trade blocks for coins", 2);
+        $this->addButton("§a» §fTop Miners\n§7View leaderboard", 3);
     }
 }
+?>
