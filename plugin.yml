@@ -1,0 +1,11 @@
+name: AdvancedMiningSystem
+main: Max\mining\Main
+version: 1.0.0
+api: 5.0.0
+depend: [EconomyAPI]
+author: Max
+
+permissions:
+  advancedmining.admin:
+    default: op
+    description: Allows access to all AdvancedMining admin commands
