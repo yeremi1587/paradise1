@@ -42,6 +42,10 @@ class Main extends PluginBase implements Listener {
         return self::$instance;
     }
 
+    public function getEconomy(): EconomyAPI {
+        return $this->economy;
+    }
+
     public function onCommand(CommandSender $sender, Command $command, string $label, array $args): bool {
         if($command->getName() === "mining") {
             if(!($sender instanceof Player)) {
@@ -89,4 +93,3 @@ class Main extends PluginBase implements Listener {
         }
     }
 }
-?>

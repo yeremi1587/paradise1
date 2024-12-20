@@ -12,16 +12,20 @@ class MainForm extends SimpleForm {
             
             switch($data) {
                 case 0: // Stats
-                    // TODO: Show stats form
+                    $form = new StatsForm($player);
+                    $form->sendTo($player);
                     break;
                 case 1: // Upgrades
-                    // TODO: Show upgrades form
+                    $form = new UpgradesForm($player);
+                    $form->sendTo($player);
                     break;
                 case 2: // Exchange
-                    // TODO: Show exchange form
+                    $form = new ExchangeForm($player);
+                    $form->sendTo($player);
                     break;
                 case 3: // Top miners
-                    // TODO: Show top miners form
+                    // TODO: Implement top miners form
+                    $player->sendMessage("§cTop miners feature coming soon!");
                     break;
             }
         });
@@ -35,4 +39,3 @@ class MainForm extends SimpleForm {
         $this->addButton("§a» §fTop Miners\n§7View leaderboard", 3);
     }
 }
-?>
