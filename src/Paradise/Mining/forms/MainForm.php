@@ -33,13 +33,13 @@ class MainForm extends SimpleForm {
         $this->setTitle("§l§6Mining System");
         $this->setContent("§7Select an option:");
         
-        $this->addButton("§a» §fMining Stats\n§7View your statistics", 0);
-        $this->addButton("§a» §fUpgrades\n§7Buy mining upgrades", 1);
-        $this->addButton("§a» §fExchange Blocks\n§7Trade blocks for coins", 2);
-        $this->addButton("§a» §fTop Miners\n§7View leaderboard", 3);
+        $this->addButton("§a» §fMining Stats\n§7View your statistics", 0, "textures/ui/icon_book_writable.png");
+        $this->addButton("§a» §fUpgrades\n§7Buy mining upgrades", 1, "textures/ui/icon_upgrade.png");
+        $this->addButton("§a» §fExchange Blocks\n§7Trade blocks for coins", 2, "textures/ui/icon_trade.png");
+        $this->addButton("§a» §fTop Miners\n§7View leaderboard", 3, "textures/ui/icon_multiplayer.png");
     }
 
-    public function sendTo(Player $player): void {
+    public function send(Player $player): void {
         $player->sendForm($this);
     }
 }

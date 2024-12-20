@@ -11,7 +11,7 @@ class StatsForm extends SimpleForm {
         parent::__construct(function (Player $player, ?int $data = null) {
             if($data === null) {
                 $form = new MainForm();
-                $form->sendTo($player);
+                $form->send($player);
                 return;
             }
         });
@@ -27,6 +27,10 @@ class StatsForm extends SimpleForm {
             "§fSpecial Blocks Found: §a" . $stats['specialBlocksFound']
         );
         
-        $this->addButton("§c« §fBack to Menu", 0);
+        $this->addButton("§c« §fBack to Menu", 0, "textures/ui/arrow_left.png");
+    }
+
+    public function send(Player $player): void {
+        $player->sendForm($this);
     }
 }

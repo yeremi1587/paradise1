@@ -31,11 +31,11 @@ class ExchangeForm extends SimpleForm {
             "§fEpic Ore: §a500 coins"
         );
         
-        $this->addButton("§a» §fExchange Gold Ore", 0);
-        $this->addButton("§a» §fExchange Diamond Ore", 1);
-        $this->addButton("§a» §fExchange Ancient Debris", 2);
-        $this->addButton("§a» §fExchange Epic Ore", 3);
-        $this->addButton("§c« §fBack to Menu", 4);
+        $this->addButton("§a» §fExchange Gold Ore", 0, "textures/blocks/gold_ore.png");
+        $this->addButton("§a» §fExchange Diamond Ore", 1, "textures/blocks/diamond_ore.png");
+        $this->addButton("§a» §fExchange Ancient Debris", 2, "textures/blocks/ancient_debris_side.png");
+        $this->addButton("§a» §fExchange Epic Ore", 3, "textures/blocks/gold_block.png");
+        $this->addButton("§c« §fBack to Menu", 4, "textures/ui/arrow_left.png");
     }
 
     private function handleExchange(Player $player, int $type): void {
@@ -69,5 +69,9 @@ class ExchangeForm extends SimpleForm {
         } else {
             $player->sendMessage("§cYou don't have any blocks to exchange!");
         }
+    }
+
+    public function send(Player $player): void {
+        $player->sendForm($this);
     }
 }
