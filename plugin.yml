@@ -3,7 +3,7 @@ main: Paradise\Mining\Main
 version: 1.0.0
 api: 5.0.0
 depend: [EconomyAPI]
-author: Max
+author: Paradise
 
 permissions:
   advancedmining.admin:
