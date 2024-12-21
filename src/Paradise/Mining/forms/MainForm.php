@@ -33,8 +33,8 @@ class MainForm extends SimpleForm {
         $this->setContent("§7Select an option:");
         
         $this->addButton("§a» §fMining Stats\n§7View your statistics", 0, "textures/ui/icon_book_writable");
-        $this->addButton("§a» §fUpgrades\n§7Buy mining upgrades", 1, "textures/items/diamond_pickaxe");
-        $this->addButton("§a» §fExchange Blocks\n§7Trade blocks for coins", 2, "textures/items/emerald");
-        $this->addButton("§a» §fTop Miners\n§7View leaderboard", 3, "textures/ui/icon_multiplayer");
+        $this->addButton("§a» §fUpgrades\n§7Buy mining upgrades", 0, "textures/items/diamond_pickaxe");
+        $this->addButton("§a» §fExchange Blocks\n§7Trade blocks for coins", 0, "textures/items/emerald");
+        $this->addButton("§a» §fTop Miners\n§7View leaderboard", 0, "textures/ui/icon_multiplayer");
     }
 }

@@ -69,7 +69,7 @@ class Main extends PluginBase implements Listener {
             }
             
             $form = new MainForm();
-            $sender->sendForm($form);
+            $player->sendForm($form);
             return true;
         }
         return false;
@@ -110,13 +110,13 @@ class Main extends PluginBase implements Listener {
 
         // Basic blocks mining rewards
         $basicRewards = [
-            VanillaBlocks::STONE()->getTypeId() => 2,
-            VanillaBlocks::COBBLESTONE()->getTypeId() => 1,
-            VanillaBlocks::GRANITE()->getTypeId() => 2,
-            VanillaBlocks::DIORITE()->getTypeId() => 2,
-            VanillaBlocks::ANDESITE()->getTypeId() => 2,
-            VanillaBlocks::DIRT()->getTypeId() => 1,
-            VanillaBlocks::GRAVEL()->getTypeId() => 1
+            VanillaBlocks::STONE()->getTypeId() => 20,
+            VanillaBlocks::COBBLESTONE()->getTypeId() => 15,
+            VanillaBlocks::GRANITE()->getTypeId() => 20,
+            VanillaBlocks::DIORITE()->getTypeId() => 20,
+            VanillaBlocks::ANDESITE()->getTypeId() => 20,
+            VanillaBlocks::DIRT()->getTypeId() => 10,
+            VanillaBlocks::GRAVEL()->getTypeId() => 10
         ];
 
         if(isset($basicRewards[$block->getTypeId()])) {
@@ -124,7 +124,7 @@ class Main extends PluginBase implements Listener {
             $this->economy->addMoney($player, $reward);
             $this->statsManager->addBlockMined($player, $block->getName());
             $this->statsManager->addCoinsEarned($player, $reward);
-            $player->sendPopup("§a+$reward coins");
+            $player->sendPopup("§7Basic Block Mined! §a+$" . $reward);
             return;
         }
 
@@ -137,7 +137,7 @@ class Main extends PluginBase implements Listener {
 
         if(isset($specialRewards[$block->getTypeId()])) {
             $this->statsManager->addBlockMined($player, $block->getName());
-            $player->sendPopup("§aSpecial block found!");
+            $player->sendPopup("§6Special block found!");
         }
     }
 }

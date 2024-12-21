@@ -6,6 +6,7 @@ use Vecnavium\FormsUI\SimpleForm;
 use pocketmine\player\Player;
 use Paradise\Mining\Main;
 use pocketmine\block\VanillaBlocks;
+use pocketmine\item\Item;
 
 class ExchangeForm extends SimpleForm {
     public function __construct(Player $player) {
@@ -31,10 +32,10 @@ class ExchangeForm extends SimpleForm {
         );
         
         $this->addButton("§a» §fExchange Gold Ore", 0, "textures/blocks/gold_ore");
-        $this->addButton("§a» §fExchange Diamond Ore", 1, "textures/blocks/diamond_ore");
-        $this->addButton("§a» §fExchange Ancient Debris", 2, "textures/blocks/ancient_debris_side");
-        $this->addButton("§a» §fExchange Epic Ore", 3, "textures/blocks/gold_block");
-        $this->addButton("§c« §fBack to Menu", 4, "textures/ui/arrow_left");
+        $this->addButton("§a» §fExchange Diamond Ore", 0, "textures/blocks/diamond_ore");
+        $this->addButton("§a» §fExchange Ancient Debris", 0, "textures/blocks/ancient_debris_side");
+        $this->addButton("§a» §fExchange Epic Ore", 0, "textures/blocks/gold_block");
+        $this->addButton("§c« §fBack to Menu", 0, "textures/ui/arrow_left");
     }
 
     private function handleExchange(Player $player, int $type): void {
@@ -42,7 +43,7 @@ class ExchangeForm extends SimpleForm {
             0 => [VanillaBlocks::GOLD_ORE(), 10],
             1 => [VanillaBlocks::DIAMOND_ORE(), 50],
             2 => [VanillaBlocks::ANCIENT_DEBRIS(), 100],
-            3 => [VanillaBlocks::GOLD_BLOCK(), 500] // Using gold block as epic ore for example
+            3 => [VanillaBlocks::RAW_GOLD_BLOCK(), 500] // Changed from GOLD_BLOCK to RAW_GOLD_BLOCK
         ];
 
         if(!isset($items[$type])) {
