@@ -69,7 +69,7 @@ class Main extends PluginBase implements Listener {
             }
             
             $form = new MainForm();
-            $player->sendForm($form);
+            $sender->sendForm($form);
             return true;
         }
         return false;
@@ -78,7 +78,8 @@ class Main extends PluginBase implements Listener {
     public function onBlockPlace(BlockPlaceEvent $event): void {
         $block = $event->getBlockAgainst();
         $pos = $block->getPosition();
-        $this->placedBlocks["{$pos->getX()},{$pos->getY()},{$pos->getZ()}"] = true;
+        $key = "{$pos->getX()},{$pos->getY()},{$pos->getZ()}";
+        $this->placedBlocks[$key] = true;
     }
 
     public function onBlockBreak(BlockBreakEvent $event): void {
@@ -95,7 +96,8 @@ class Main extends PluginBase implements Listener {
         $blockKey = "{$pos->getX()},{$pos->getY()},{$pos->getZ()}";
         if(isset($this->placedBlocks[$blockKey])) {
             unset($this->placedBlocks[$blockKey]);
-            return; // Don't give rewards for placed blocks
+            $player->sendPopup("§cYou cannot earn money from placed blocks!");
+            return;
         }
 
         $multiplier = $this->statsManager->getMultiplier($player);
@@ -137,7 +139,7 @@ class Main extends PluginBase implements Listener {
 
         if(isset($specialRewards[$block->getTypeId()])) {
             $this->statsManager->addBlockMined($player, $block->getName());
-            $player->sendPopup("§6Special block found!");
+            $player->sendPopup("§6Special Block Found! §fCollect it to exchange");
         }
     }
 }
