@@ -70,7 +70,7 @@ class Main extends PluginBase implements Listener {
             }
             
             $form = new MainForm();
-            $form->sendTo($sender);
+            $form->send($sender);
             return true;
         }
         return false;
