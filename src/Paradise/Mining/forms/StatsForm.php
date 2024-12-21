@@ -9,10 +9,9 @@ use Paradise\Mining\Main;
 class StatsForm extends SimpleForm {
     public function __construct(Player $player) {
         parent::__construct(function (Player $player, ?int $data = null) {
-            if($data === null) {
+            if($data !== null) {
                 $form = new MainForm();
                 $form->send($player);
-                return;
             }
         });
 
@@ -27,10 +26,6 @@ class StatsForm extends SimpleForm {
             "§fSpecial Blocks Found: §a" . $stats['specialBlocksFound']
         );
         
-        $this->addButton("§c« §fBack to Menu", 0, "textures/ui/arrow_left.png");
-    }
-
-    public function send(Player $player): void {
-        $player->sendForm($this);
+        $this->addButton("§c« §fBack to Menu", 0, "textures/ui/arrow_left");
     }
 }

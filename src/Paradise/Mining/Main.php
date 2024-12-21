@@ -7,6 +7,7 @@ use pocketmine\event\Listener;
 use pocketmine\utils\Config;
 use pocketmine\player\Player;
 use pocketmine\event\block\BlockBreakEvent;
+use pocketmine\event\block\BlockPlaceEvent;
 use pocketmine\block\Block;
 use pocketmine\block\VanillaBlocks;
 use pocketmine\command\Command;
@@ -22,6 +23,7 @@ class Main extends PluginBase implements Listener {
     private EconomyAPI $economy;
     private StatsManager $statsManager;
     private EventManager $eventManager;
+    private array $placedBlocks = [];
 
     public function onEnable(): void {
         self::$instance = $this;
@@ -76,16 +78,27 @@ class Main extends PluginBase implements Listener {
         return false;
     }
 
-    /**
-     * Handle block breaking event
-     */
+    public function onBlockPlace(BlockPlaceEvent $event): void {
+        $block = $event->getBlock();
+        $pos = $block->getPosition();
+        $this->placedBlocks["{$pos->getX()},{$pos->getY()},{$pos->getZ()}"] = true;
+    }
+
     public function onBlockBreak(BlockBreakEvent $event): void {
         $player = $event->getPlayer();
         $block = $event->getBlock();
+        $pos = $block->getPosition();
         
         // Check if in mining world
         if($player->getWorld()->getFolderName() !== $this->config->get("mining-world", "factions")) {
             return;
+        }
+
+        // Check if block was placed by a player
+        $blockKey = "{$pos->getX()},{$pos->getY()},{$pos->getZ()}";
+        if(isset($this->placedBlocks[$blockKey])) {
+            unset($this->placedBlocks[$blockKey]);
+            return; // Don't give rewards for placed blocks
         }
 
         $multiplier = $this->statsManager->getMultiplier($player);
@@ -98,30 +111,36 @@ class Main extends PluginBase implements Listener {
             }
         }
 
-        // Basic stone mining reward
-        if($block->isSameType(VanillaBlocks::STONE())) {
-            $reward = (int)(2 * $multiplier);
+        // Basic blocks mining rewards
+        $basicRewards = [
+            VanillaBlocks::STONE()->getTypeId() => 2,
+            VanillaBlocks::COBBLESTONE()->getTypeId() => 1,
+            VanillaBlocks::GRANITE()->getTypeId() => 2,
+            VanillaBlocks::DIORITE()->getTypeId() => 2,
+            VanillaBlocks::ANDESITE()->getTypeId() => 2,
+            VanillaBlocks::DIRT()->getTypeId() => 1,
+            VanillaBlocks::GRAVEL()->getTypeId() => 1
+        ];
+
+        if(isset($basicRewards[$block->getTypeId()])) {
+            $reward = (int)($basicRewards[$block->getTypeId()] * $multiplier);
             $this->economy->addMoney($player, $reward);
-            $this->statsManager->addBlockMined($player, 'stone');
+            $this->statsManager->addBlockMined($player, $block->getName());
             $this->statsManager->addCoinsEarned($player, $reward);
             $player->sendPopup("§a+$reward coins");
             return;
         }
 
-        // Special blocks rewards
-        $rewards = [
+        // Special blocks rewards (only for exchange menu)
+        $specialRewards = [
             VanillaBlocks::GOLD_ORE()->getTypeId() => 10,
             VanillaBlocks::DIAMOND_ORE()->getTypeId() => 50,
             VanillaBlocks::ANCIENT_DEBRIS()->getTypeId() => 100
         ];
 
-        if(isset($rewards[$block->getTypeId()])) {
-            $baseReward = $rewards[$block->getTypeId()];
-            $reward = (int)($baseReward * $multiplier);
-            $this->economy->addMoney($player, $reward);
+        if(isset($specialRewards[$block->getTypeId()])) {
             $this->statsManager->addBlockMined($player, $block->getName());
-            $this->statsManager->addCoinsEarned($player, $reward);
-            $player->sendPopup("§a+$reward coins");
+            $player->sendPopup("§aSpecial block found!");
         }
     }
 }

@@ -6,14 +6,13 @@ use Vecnavium\FormsUI\SimpleForm;
 use pocketmine\player\Player;
 use Paradise\Mining\Main;
 use pocketmine\block\VanillaBlocks;
-use pocketmine\item\Item;
 
 class ExchangeForm extends SimpleForm {
     public function __construct(Player $player) {
         parent::__construct(function (Player $player, ?int $data = null) {
             if($data === null) {
                 $form = new MainForm();
-                $form->sendTo($player);
+                $form->send($player);
                 return;
             }
 
@@ -24,18 +23,18 @@ class ExchangeForm extends SimpleForm {
 
         $this->setTitle("§l§6Block Exchange");
         $this->setContent(
-            "§7Exchange your mined blocks for coins:\n\n" .
+            "§7Exchange your special blocks for coins:\n\n" .
             "§fGold Ore: §a10 coins\n" .
             "§fDiamond Ore: §a50 coins\n" .
             "§fAncient Debris: §a100 coins\n" .
             "§fEpic Ore: §a500 coins"
         );
         
-        $this->addButton("§a» §fExchange Gold Ore", 0, "textures/blocks/gold_ore.png");
-        $this->addButton("§a» §fExchange Diamond Ore", 1, "textures/blocks/diamond_ore.png");
-        $this->addButton("§a» §fExchange Ancient Debris", 2, "textures/blocks/ancient_debris_side.png");
-        $this->addButton("§a» §fExchange Epic Ore", 3, "textures/blocks/gold_block.png");
-        $this->addButton("§c« §fBack to Menu", 4, "textures/ui/arrow_left.png");
+        $this->addButton("§a» §fExchange Gold Ore", 0, "textures/blocks/gold_ore");
+        $this->addButton("§a» §fExchange Diamond Ore", 1, "textures/blocks/diamond_ore");
+        $this->addButton("§a» §fExchange Ancient Debris", 2, "textures/blocks/ancient_debris_side");
+        $this->addButton("§a» §fExchange Epic Ore", 3, "textures/blocks/gold_block");
+        $this->addButton("§c« §fBack to Menu", 4, "textures/ui/arrow_left");
     }
 
     private function handleExchange(Player $player, int $type): void {
@@ -69,9 +68,5 @@ class ExchangeForm extends SimpleForm {
         } else {
             $player->sendMessage("§cYou don't have any blocks to exchange!");
         }
-    }
-
-    public function send(Player $player): void {
-        $player->sendForm($this);
     }
 }
