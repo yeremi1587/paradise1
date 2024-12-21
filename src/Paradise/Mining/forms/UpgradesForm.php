@@ -11,7 +11,7 @@ class UpgradesForm extends SimpleForm {
         parent::__construct(function (Player $player, ?int $data = null) {
             if($data === null) {
                 $form = new MainForm();
-                $form->send($player);
+                $player->sendForm($form);
                 return;
             }
 
@@ -23,9 +23,9 @@ class UpgradesForm extends SimpleForm {
         $this->setTitle("§l§6Mining Upgrades");
         $this->setContent("§7Purchase upgrades to increase your mining rewards:");
         
-        $this->addButton("§a» §fLevel 1 Upgrade\n§72x Coins - $10,000", 0, "textures/ui/icon_upgrade");
-        $this->addButton("§a» §fLevel 2 Upgrade\n§73x Coins - $25,000", 1, "textures/ui/icon_upgrade");
-        $this->addButton("§a» §fLevel 3 Upgrade\n§74x Coins - $50,000", 2, "textures/ui/icon_upgrade");
+        $this->addButton("§a» §fLevel 1 Upgrade\n§72x Coins - $10,000", 0, "textures/items/diamond_pickaxe");
+        $this->addButton("§a» §fLevel 2 Upgrade\n§73x Coins - $25,000", 1, "textures/items/netherite_pickaxe");
+        $this->addButton("§a» §fLevel 3 Upgrade\n§74x Coins - $50,000", 2, "textures/items/netherite_pickaxe");
         $this->addButton("§c« §fBack to Menu", 3, "textures/ui/arrow_left");
     }
 

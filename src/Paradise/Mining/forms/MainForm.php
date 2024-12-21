@@ -11,20 +11,19 @@ class MainForm extends SimpleForm {
             if($data === null) return;
             
             switch($data) {
-                case 0: // Stats
+                case 0:
                     $form = new StatsForm($player);
-                    $form->send($player);
+                    $player->sendForm($form);
                     break;
-                case 1: // Upgrades
+                case 1:
                     $form = new UpgradesForm($player);
-                    $form->send($player);
+                    $player->sendForm($form);
                     break;
-                case 2: // Exchange
+                case 2:
                     $form = new ExchangeForm($player);
-                    $form->send($player);
+                    $player->sendForm($form);
                     break;
-                case 3: // Top miners
-                    // TODO: Implement top miners form
+                case 3:
                     $player->sendMessage("§cTop miners feature coming soon!");
                     break;
             }
@@ -34,8 +33,8 @@ class MainForm extends SimpleForm {
         $this->setContent("§7Select an option:");
         
         $this->addButton("§a» §fMining Stats\n§7View your statistics", 0, "textures/ui/icon_book_writable");
-        $this->addButton("§a» §fUpgrades\n§7Buy mining upgrades", 1, "textures/ui/icon_upgrade");
-        $this->addButton("§a» §fExchange Blocks\n§7Trade blocks for coins", 2, "textures/ui/icon_trade");
+        $this->addButton("§a» §fUpgrades\n§7Buy mining upgrades", 1, "textures/items/diamond_pickaxe");
+        $this->addButton("§a» §fExchange Blocks\n§7Trade blocks for coins", 2, "textures/items/emerald");
         $this->addButton("§a» §fTop Miners\n§7View leaderboard", 3, "textures/ui/icon_multiplayer");
     }
 }

@@ -11,7 +11,7 @@ class StatsForm extends SimpleForm {
         parent::__construct(function (Player $player, ?int $data = null) {
             if($data !== null) {
                 $form = new MainForm();
-                $form->send($player);
+                $player->sendForm($form);
             }
         });
 

@@ -29,15 +29,12 @@ class Main extends PluginBase implements Listener {
         self::$instance = $this;
         $this->getServer()->getPluginManager()->registerEvents($this, $this);
         
-        // Save default config
         $this->saveDefaultConfig();
         $this->config = $this->getConfig();
         
-        // Initialize managers
         $this->statsManager = new StatsManager($this);
         $this->eventManager = new EventManager($this);
         
-        // Check for EconomyAPI
         $economy = $this->getServer()->getPluginManager()->getPlugin("EconomyAPI");
         if($economy instanceof EconomyAPI) {
             $this->economy = $economy;
@@ -72,14 +69,14 @@ class Main extends PluginBase implements Listener {
             }
             
             $form = new MainForm();
-            $form->send($sender);
+            $sender->sendForm($form);
             return true;
         }
         return false;
     }
 
     public function onBlockPlace(BlockPlaceEvent $event): void {
-        $block = $event->getBlock();
+        $block = $event->getBlockAgainst();
         $pos = $block->getPosition();
         $this->placedBlocks["{$pos->getX()},{$pos->getY()},{$pos->getZ()}"] = true;
     }
