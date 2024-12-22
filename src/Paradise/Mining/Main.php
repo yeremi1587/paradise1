@@ -7,7 +7,7 @@ use pocketmine\event\Listener;
 use pocketmine\utils\Config;
 use pocketmine\player\Player;
 use pocketmine\event\block\BlockBreakEvent;
-use pocketmine\event\block\BlockPlaceEvent;  // Added correct import
+use pocketmine\event\block\BlockPlaceEvent;
 use pocketmine\block\Block;
 use pocketmine\block\VanillaBlocks;
 use pocketmine\command\Command;
@@ -77,7 +77,7 @@ class Main extends PluginBase implements Listener {
     }
 
     public function onBlockPlace(BlockPlaceEvent $event): void {
-        $block = $event->getBlock();
+        $block = $event->getBlockReplace();  // Changed from getBlock() to getBlockReplace()
         $pos = $block->getPosition();
         $key = "{$pos->getX()},{$pos->getY()},{$pos->getZ()}";
         $this->placedBlocks[$key] = true;
