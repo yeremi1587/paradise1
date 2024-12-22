@@ -77,8 +77,8 @@ class Main extends PluginBase implements Listener {
     }
 
     public function onBlockPlace(BlockPlaceEvent $event): void {
-        $block = $event->getBlock();  // Cambiado a getBlock() que es el método correcto
-        $pos = $block->getPosition();
+        $block = $event->getBlockAgainst();
+        $pos = $event->getBlockReplaced()->getPosition();
         $key = "{$pos->getX()},{$pos->getY()},{$pos->getZ()}";
         $this->placedBlocks[$key] = true;
     }
