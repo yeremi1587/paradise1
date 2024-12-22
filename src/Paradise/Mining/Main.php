@@ -7,6 +7,7 @@ use pocketmine\event\Listener;
 use pocketmine\utils\Config;
 use pocketmine\player\Player;
 use pocketmine\event\block\BlockBreakEvent;
+use pocketmine\event\block\BlockPlaceEvent;  // Added correct import
 use pocketmine\block\Block;
 use pocketmine\block\VanillaBlocks;
 use pocketmine\command\Command;
