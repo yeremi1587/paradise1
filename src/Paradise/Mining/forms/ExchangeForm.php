@@ -24,7 +24,7 @@ class ExchangeForm extends SimpleForm {
 
         $this->setTitle("§l§6Block Exchange");
         $this->setContent(
-            "§7Exchange your special blocks for coins:\n\n" .
+            "§7Exchange your mined blocks for coins:\n\n" .
             "§fGold Ore: §a10 coins\n" .
             "§fDiamond Ore: §a50 coins\n" .
             "§fAncient Debris: §a100 coins\n" .
@@ -34,7 +34,7 @@ class ExchangeForm extends SimpleForm {
         $this->addButton("§a» §fExchange Gold Ore", 0, "textures/blocks/gold_ore");
         $this->addButton("§a» §fExchange Diamond Ore", 0, "textures/blocks/diamond_ore");
         $this->addButton("§a» §fExchange Ancient Debris", 0, "textures/blocks/ancient_debris_side");
-        $this->addButton("§a» §fExchange Epic Ore", 0, "textures/blocks/gold_block");
+        $this->addButton("§a» §fExchange Epic Ore", 0, "textures/blocks/raw_gold_block");
         $this->addButton("§c« §fBack to Menu", 0, "textures/ui/arrow_left");
     }
 
@@ -43,7 +43,7 @@ class ExchangeForm extends SimpleForm {
             0 => [VanillaBlocks::GOLD_ORE(), 10],
             1 => [VanillaBlocks::DIAMOND_ORE(), 50],
             2 => [VanillaBlocks::ANCIENT_DEBRIS(), 100],
-            3 => [VanillaBlocks::RAW_GOLD_BLOCK(), 500] // Changed from GOLD_BLOCK to RAW_GOLD_BLOCK
+            3 => [VanillaBlocks::RAW_GOLD_BLOCK(), 500]
         ];
 
         if(!isset($items[$type])) {

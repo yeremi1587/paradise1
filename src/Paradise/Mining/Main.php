@@ -7,7 +7,6 @@ use pocketmine\event\Listener;
 use pocketmine\utils\Config;
 use pocketmine\player\Player;
 use pocketmine\event\block\BlockBreakEvent;
-use pocketmine\event\block\BlockPlaceEvent;
 use pocketmine\block\Block;
 use pocketmine\block\VanillaBlocks;
 use pocketmine\command\Command;
@@ -24,6 +23,7 @@ class Main extends PluginBase implements Listener {
     private StatsManager $statsManager;
     private EventManager $eventManager;
     private array $placedBlocks = [];
+    private array $recentBreaks = [];
 
     public function onEnable(): void {
         self::$instance = $this;
@@ -76,7 +76,7 @@ class Main extends PluginBase implements Listener {
     }
 
     public function onBlockPlace(BlockPlaceEvent $event): void {
-        $block = $event->getBlockAgainst();
+        $block = $event->getBlock();
         $pos = $block->getPosition();
         $key = "{$pos->getX()},{$pos->getY()},{$pos->getZ()}";
         $this->placedBlocks[$key] = true;
@@ -88,21 +88,39 @@ class Main extends PluginBase implements Listener {
         $pos = $block->getPosition();
         
         // Check if in mining world
-        if($player->getWorld()->getFolderName() !== $this->config->get("mining-world", "factions")) {
+        $miningWorld = $this->config->get("mining-world", "factions");
+        if($player->getWorld()->getFolderName() !== $miningWorld) {
             return;
         }
 
-        // Check if block was placed by a player
+        // Anti-abuse check for placed blocks
         $blockKey = "{$pos->getX()},{$pos->getY()},{$pos->getZ()}";
         if(isset($this->placedBlocks[$blockKey])) {
             unset($this->placedBlocks[$blockKey]);
+            $event->cancel();
             $player->sendPopup("§cYou cannot earn money from placed blocks!");
             return;
         }
 
+        // Anti-spam check
+        $playerName = $player->getName();
+        $currentTime = microtime(true);
+        if (isset($this->recentBreaks[$playerName])) {
+            if (count($this->recentBreaks[$playerName]) > 10) {
+                $oldestBreak = array_shift($this->recentBreaks[$playerName]);
+                if ($currentTime - $oldestBreak < 1.0) {
+                    $event->cancel();
+                    $player->sendPopup("§cMining too fast!");
+                    return;
+                }
+            }
+        } else {
+            $this->recentBreaks[$playerName] = [];
+        }
+        $this->recentBreaks[$playerName][] = $currentTime;
+
         $multiplier = $this->statsManager->getMultiplier($player);
         
-        // Check if during event for additional multiplier
         if($this->eventManager->isEventActive()) {
             $eventLoc = $this->eventManager->getEventLocation();
             if($eventLoc !== null && $block->getPosition()->distance($eventLoc) <= 10) {
@@ -130,7 +148,7 @@ class Main extends PluginBase implements Listener {
             return;
         }
 
-        // Special blocks rewards (only for exchange menu)
+        // Special blocks rewards
         $specialRewards = [
             VanillaBlocks::GOLD_ORE()->getTypeId() => 10,
             VanillaBlocks::DIAMOND_ORE()->getTypeId() => 50,
