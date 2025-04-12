@@ -5,38 +5,34 @@ declare(strict_types=1);
 
 namespace Max\koth\Commands\SubCommands;
 
+use CortexPE\Commando\args\RawStringArgument;
 use CortexPE\Commando\BaseSubCommand;
 use Max\koth\KOTH;
 use pocketmine\command\CommandSender;
-use pocketmine\player\Player;
-use CortexPE\Commando\args\RawStringArgument;
 
 class startSubCommand extends BaseSubCommand {
-    protected function prepare(): void {
-        $this->registerArgument(0, new RawStringArgument("arena", true));
-    }
 
-    public function onRun(CommandSender $sender, string $aliasUsed, array $args): void {
-        if (!$sender instanceof Player) {
-            $sender->sendMessage("§cEste comando solo puede ser usado por jugadores");
-            return;
-        }
+	public function prepare(): void {
+		$this->setPermission("maxkoth.command.koth.start");
+		$this->registerArgument(0, new RawStringArgument("arena", true));
+	}
 
-        if (!isset($args["arena"])) {
-            $sender->sendMessage("§cUso: /koth start <nombre_arena>");
-            $sender->sendMessage("§7Usa /koth list para ver las arenas disponibles");
-            return;
-        }
-
-        $plugin = KOTH::getInstance();
-        $arenaName = $args["arena"];
-        $arena = $plugin->getArena($arenaName);
-
-        if ($arena === null) {
-            $sender->sendMessage("§cLa arena especificada no existe");
-            return;
-        }
-
-        $sender->sendMessage($plugin->startKoth($arena));
-    }
+	public function onRun(CommandSender $sender, string $aliasUsed, array $args) : void {
+		$koth = KOTH::getInstance();
+		
+		// Check if arena name is provided
+		if (!isset($args["arena"])) {
+			$sender->sendMessage("§cUso: /koth start <nombre_arena>");
+			$sender->sendMessage("§7Usa /koth list para ver las arenas disponibles");
+			return;
+		}
+		
+		$arena = $koth->getArena($args["arena"]);
+		if (!$arena) {
+			$sender->sendMessage("§fKOTH » Esta arena no existe.");
+			return;
+		}
+		
+		$sender->sendMessage($koth->startKoth($arena));
+	}
 }
