@@ -1,3 +1,4 @@
+
 <?php
 
 declare(strict_types=1);
@@ -28,7 +29,8 @@ class startSubCommand extends BaseSubCommand {
         }
 
         $plugin = KOTH::getInstance();
-        $arena = $plugin->getArena($args["arena"]);
+        $arenaName = $args["arena"];
+        $arena = $plugin->getArena($arenaName);
 
         if ($arena === null) {
             $sender->sendMessage("§cLa arena especificada no existe");
