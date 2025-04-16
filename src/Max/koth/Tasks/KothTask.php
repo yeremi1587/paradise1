@@ -67,24 +67,13 @@ class KothTask extends Task {
         $seconds = sprintf("%02d", ($timeLeft - ($minutes * 60)));
 
         if ($this->pl->config->USE_BOSSBAR) {
-            $this->updateBossBar($minutes, $seconds, $timeLeft);
+            $percentage = $timeLeft / $this->pl->config->CAPTURE_TIME;
+            $this->pl->getBossBarManager()->updateDisplay($this->arena->getName(), $this->kingName, $percentage);
         }
 
         if ($this->pl->config->SEND_ACTIONBAR) {
             $this->updateActionBar($minutes, $seconds, $timeLeft);
         }
-    }
-
-    private function updateBossBar(int $minutes, string $seconds, int $timeLeft): void {
-        $bossBar = $this->pl->getBossBar();
-        if ($bossBar === null) {
-            return;
-        }
-        
-        $bossBar->setTitle("§uKOTH: §t" . $this->arena->getName() . "§r - §uTime: §t" . $minutes . ":" . $seconds);
-        $bossBar->setSubTitle("§uKing: §t" . $this->kingName);
-        $bossBar->setPercentage($timeLeft / $this->pl->config->CAPTURE_TIME);
-        $this->pl->setBossBarColor((string)$this->pl->config->COLOR_BOSSBAR);
     }
 
     private function updateActionBar(int $minutes, string $seconds, int $timeLeft): void {
