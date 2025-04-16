@@ -1,53 +1,38 @@
-# AdvancedMiningSystem Configuration
 
-# World where the mining system is enabled
-mining-world: "factions"
+# King of the Hill Configuration
 
-# Basic rewards
-stone-reward: 2
+# Task delay in ticks (20 ticks = 1 second)
+task-delay: 20
 
-# Special blocks rewards
-special-blocks:
-  gold_ore: 10
-  diamond_ore: 50
-  ancient_debris: 100
-  epic_ore: 500
+# Time in seconds to capture KOTH
+capture-time: 150
 
-# Special blocks regeneration
-regeneration:
-  enabled: true
-  min-time: 300 # 5 minutes
-  max-time: 600 # 10 minutes
+# Bossbar settings
+use-bossbar: true
+color-bossbar: "purple"
 
-# Mining zones
-mining-zones:
-  zone1:
-    pos1: [100, 64, 100]
-    pos2: [200, 100, 200]
-    pvp: true
+# Display settings
+send-tips: false
+send-actionbar: false
 
-# Mining events
-events:
-  enabled: true
-  interval: 3600 # 1 hour
-  duration: 300 # 5 minutes
-  announcement-radius: 100
+# Webhook settings
+use-webhook: false
+webhook-url: ""
 
-# Mining upgrades
-upgrades:
-  level1:
-    multiplier: 2
-    price: 10000
-  level2:
-    multiplier: 3
-    price: 25000
-  level3:
-    multiplier: 4
-    price: 50000
+# Faction settings
+min-faction-power: 100
+require-faction: true
 
-# NPC traders
-traders:
-  enabled: true
-  locations:
-    trader1: [0, 64, 0]
-    trader2: [100, 64, 100]
+# Commands to execute when KOTH ends
+# {player} will be replaced with winner's name
+rewards:
+  - 'give "{player}" diamond 64'
+  - 'give "{player}" gold 64'
+  - 'give "{player}" obsidian 64'
+  - 'give "{player}" 466 64'
+
+# Times when KOTH should automatically start (format: HOUR.MINUTE)
+start-times:
+  - 17.0  # 5:00 PM
+  - 20.0  # 8:00 PM
+  - 22.0  # 10:00 PM

@@ -54,24 +54,36 @@ class BossBarManager {
     }
 
     public function addPlayer(Player $player): void {
-        if ($this->bar !== null) {
-            $this->bar->addPlayer($player);
+        if ($this->bar !== null && $this->plugin->config->USE_BOSSBAR) {
+            try {
+                $this->bar->addPlayer($player);
+            } catch (\Throwable $e) {
+                $this->plugin->getLogger()->error("Failed to add player to BossBar: " . $e->getMessage());
+            }
         }
     }
 
     public function removePlayer(Player $player): void {
-        if ($this->bar !== null) {
-            $this->bar->removePlayer($player);
+        if ($this->bar !== null && $this->plugin->config->USE_BOSSBAR) {
+            try {
+                $this->bar->removePlayer($player);
+            } catch (\Throwable $e) {
+                $this->plugin->getLogger()->error("Failed to remove player from BossBar: " . $e->getMessage());
+            }
         }
     }
 
     public function updateDisplay(string $arenaName, string $kingName, float $percentage): void {
-        if ($this->bar === null) {
+        if ($this->bar === null || !$this->plugin->config->USE_BOSSBAR) {
             return;
         }
 
-        $this->bar->setTitle("§uKOTH: §t" . $arenaName);
-        $this->bar->setSubTitle("§uKing: §t" . $kingName);
-        $this->bar->setPercentage($percentage);
+        try {
+            $this->bar->setTitle("§uKOTH: §t" . $arenaName);
+            $this->bar->setSubTitle("§uKing: §t" . $kingName);
+            $this->bar->setPercentage($percentage);
+        } catch (\Throwable $e) {
+            $this->plugin->getLogger()->error("Failed to update BossBar: " . $e->getMessage());
+        }
     }
 }
