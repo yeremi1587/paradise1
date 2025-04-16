@@ -1,3 +1,4 @@
+
 <?php
 
 declare(strict_types=1);
@@ -27,7 +28,7 @@ class KOTH extends PluginBase {
     protected ?Arena $current = null;
     private Config $data;
     protected array $arenas = [];
-    public BossBar $bar;
+    private ?BossBar $bar = null;
     public KothConfig $config;
     
     public function onEnable(): void {
@@ -42,10 +43,6 @@ class KOTH extends PluginBase {
 
         // Cargar arenas guardadas
         $this->loadArenas();
-
-        if ($this->config->USE_BOSSBAR) {
-            $this->bar = new BossBar();
-        }
 
         $this->getServer()->getPluginManager()->registerEvents(
             new Listeners\CommandProtectionListener($this),
@@ -95,7 +92,7 @@ class KOTH extends PluginBase {
     }
 
     public function setBossBarColor(string $color): void {
-        if (!$this->config->USE_BOSSBAR || !isset($this->bar)) {
+        if (!$this->config->USE_BOSSBAR || !isset($this->bar) || $this->bar === null) {
             return;
         }
 
@@ -110,6 +107,10 @@ class KOTH extends PluginBase {
         };
         
         $this->bar->setColor($colorConstant);
+    }
+
+    public function getBossBar(): ?BossBar {
+        return $this->bar;
     }
 
     public function getData(): Config {
@@ -173,14 +174,24 @@ class KOTH extends PluginBase {
         $message = "KOTH » KOTH has started in §f" . $arenaName . "\n";
         $message .= "§7Coordinates: §f" . $coords;
 
-        foreach ($this->getServer()->getOnlinePlayers() as $player) {
-            if ($this->config->USE_BOSSBAR) {
+        // Initialize the bossbar only when needed
+        if ($this->config->USE_BOSSBAR) {
+            $this->bar = new BossBar();
+            $this->setBossBarColor($this->config->COLOR_BOSSBAR);
+            
+            // Set initial values to avoid the error
+            $this->bar->setTitle("§uKOTH: §t" . $arenaName);
+            $this->bar->setSubTitle("§uKing: §t...");
+            $this->bar->setPercentage(1.0);
+            
+            foreach ($this->getServer()->getOnlinePlayers() as $player) {
                 $this->bar->addPlayer($player);
             }
-            $player->sendMessage($message);
         }
 
-        $this->setBossBarColor($this->config->COLOR_BOSSBAR);
+        foreach ($this->getServer()->getOnlinePlayers() as $player) {
+            $player->sendMessage($message);
+        }
 
         if ($this->config->USE_WEBHOOK) {
             $webhook = new Webhook($this->config->WEBHOOK_URL);
@@ -213,10 +224,11 @@ class KOTH extends PluginBase {
             }
         }
 
-        if ($this->config->USE_BOSSBAR) {
+        if ($this->config->USE_BOSSBAR && $this->bar !== null) {
             foreach ($this->getServer()->getOnlinePlayers() as $player) {
                 $this->bar->removePlayer($player);
             }
+            $this->bar = null;
         }
 
         $this->taskHandler->cancel();

@@ -1,3 +1,4 @@
+
 <?php
 
 namespace Max\koth\Tasks;
@@ -75,9 +76,14 @@ class KothTask extends Task {
     }
 
     private function updateBossBar(int $minutes, string $seconds, int $timeLeft): void {
-        $this->pl->bar->setTitle("§uKOTH: §t" . $this->arena->getName() . "§r - §uTime: §t" . $minutes . ":" . $seconds);
-        $this->pl->bar->setSubTitle("§uKing: §t" . $this->kingName);
-        $this->pl->bar->setPercentage($timeLeft / $this->pl->config->CAPTURE_TIME);
+        $bossBar = $this->pl->getBossBar();
+        if ($bossBar === null) {
+            return;
+        }
+        
+        $bossBar->setTitle("§uKOTH: §t" . $this->arena->getName() . "§r - §uTime: §t" . $minutes . ":" . $seconds);
+        $bossBar->setSubTitle("§uKing: §t" . $this->kingName);
+        $bossBar->setPercentage($timeLeft / $this->pl->config->CAPTURE_TIME);
         $this->pl->setBossBarColor((string)$this->pl->config->COLOR_BOSSBAR);
     }
 
