@@ -393,6 +393,5 @@ class GUI
             function (Player $player, CustomFormResponse $response): void {
             }
         ));
-
     }
 }
