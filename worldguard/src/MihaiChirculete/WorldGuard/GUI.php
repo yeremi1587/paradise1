@@ -134,6 +134,12 @@ class GUI
     {
         $lang = Utils::getPluginFromIssuer($issuer)->resourceManager->getLanguagePack();
         $regions = array_keys($issuer->getServer()->getPluginManager()->getPlugin("WorldGuard")->getRegions());
+        
+        if (empty($regions)) {
+            $issuer->sendMessage("§c" . $lang["gui_no_regions_error"] ?? "No hay regiones creadas aún. Crea una región primero.");
+            return;
+        }
+        
         foreach ($regions as $key => $value) {
             $regions[$key] = strval($value);
         }
@@ -143,9 +149,14 @@ class GUI
                 new Dropdown($lang["gui_dropdown_select_manage"], $regions),
             ],
             function (Player $player, CustomFormResponse $response): void {
-                list($rgName) = $response->getValues();
-                if($rgName !== null){
-                    self::displayRgEditing($player, $rgName);
+                try {
+                    list($rgName) = $response->getValues();
+                    if($rgName !== null){
+                        self::displayRgEditing($player, $rgName);
+                    }
+                } catch (\Exception $e) {
+                    $player->sendMessage("§cHubo un error al procesar tu selección. Por favor, inténtalo de nuevo.");
+                    $player->getServer()->getLogger()->error("Error en WorldGuard GUI: " . $e->getMessage());
                 }
             }
         ));

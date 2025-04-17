@@ -1,3 +1,4 @@
+
 <?php
 declare(strict_types=1);
 
@@ -29,12 +30,18 @@ class CustomFormResponse
      *
      */
     public function tryGet(string $expected = Element::class)
-    { //why PHP still hasn't templates???
-        if (($element = array_shift($this->elements)) instanceof Label) {
-            return $this->tryGet($expected); //remove useless element
-        } elseif ($element === null || !($element instanceof $expected)) {
-            throw new FormValidationException("Expected a element with of type $expected, got " . get_class($element));
+    {
+        $element = array_shift($this->elements);
+        
+        // If the element is a Label, skip it and get the next element
+        while ($element instanceof Label) {
+            $element = array_shift($this->elements);
         }
+        
+        if ($element === null || !($element instanceof $expected)) {
+            throw new FormValidationException("Expected a element with of type $expected, got " . ($element === null ? "null" : get_class($element)));
+        }
+        
         return $element;
     }
 

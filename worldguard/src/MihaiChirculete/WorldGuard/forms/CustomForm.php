@@ -1,3 +1,4 @@
+
 <?php
 declare(strict_types=1);
 
@@ -5,6 +6,7 @@ namespace MihaiChirculete\WorldGuard\forms;
 
 use Closure;
 use MihaiChirculete\WorldGuard\elements\Element;
+use MihaiChirculete\WorldGuard\elements\Label;
 use pocketmine\{form\FormValidationException, player\Player, utils\Utils};
 use function array_merge;
 use function gettype;
@@ -29,8 +31,6 @@ class CustomForm extends Form
     {
         parent::__construct($title);
         $this->elements = $elements;
-        $this->onSubmit = $onSubmit;
-        $this->onClose = $onClose;
         Utils::validateCallableSignature(function (Player $player, CustomFormResponse $response): void {
         }, $onSubmit);
         $this->onSubmit = $onSubmit;
@@ -75,15 +75,28 @@ class CustomForm extends Form
                 ($this->onClose)($player);
             }
         } elseif (is_array($data)) {
-            foreach ($data as $index => $value) {
-                if (!isset($this->elements[$index])) {
-                    throw new FormValidationException("Element at index $index does not exist");
+            try {
+                foreach ($data as $index => $value) {
+                    if (!isset($this->elements[$index])) {
+                        throw new FormValidationException("Element at index $index does not exist");
+                    }
+                    
+                    $element = $this->elements[$index];
+                    
+                    // Skip validation for Label elements as they are display-only
+                    if (!($element instanceof Label)) {
+                        $element->validate($value);
+                    }
+                    
+                    $element->setValue($value);
                 }
-                $element = $this->elements[$index];
-                $element->validate($value);
-                $element->setValue($value);
+                
+                ($this->onSubmit)($player, new CustomFormResponse($this->elements));
+            } catch (FormValidationException $e) {
+                // Log the error without crashing
+                $player->getServer()->getLogger()->error("Form validation error: " . $e->getMessage());
+                $player->sendMessage("§cError al procesar el formulario. Por favor, inténtalo de nuevo.");
             }
-            ($this->onSubmit)($player, new CustomFormResponse($this->elements));
         } else {
             throw new FormValidationException("Expected array or null, got " . gettype($data));
         }

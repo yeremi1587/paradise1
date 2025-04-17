@@ -1,3 +1,4 @@
+
 <?php
 declare(strict_types=1);
 
@@ -23,10 +24,17 @@ class Label extends Element
         return [];
     }
 
+    /**
+     * Labels should accept any value without validation since they are just display elements
+     * and don't actually store user input. This fixes issues with some Minecraft Bedrock clients
+     * that send string values for labels instead of null.
+     * 
+     * @param mixed $value
+     * @return void
+     */
     public function validate($value): void
     {
-        if ($value !== null) {
-            throw new FormValidationException("Expected null, got " . gettype($value));
-        }
+        // Accept any value for labels - they are display-only elements
+        // This fixes the "Expected null, got string" error
     }
 }
