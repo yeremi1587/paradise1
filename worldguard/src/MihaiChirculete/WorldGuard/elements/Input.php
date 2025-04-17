@@ -70,10 +70,16 @@ class Input extends Element
     }
 
     /**
-     * @param $value
+     * @param mixed $value
      */
     public function validate($value): void
     {
+        // Handle boolean values by converting them to strings
+        if (is_bool($value)) {
+            $this->setValue($value ? "true" : "false");
+            return;
+        }
+        
         if (!is_string($value)) {
             throw new FormValidationException("Expected string, got " . gettype($value));
         }

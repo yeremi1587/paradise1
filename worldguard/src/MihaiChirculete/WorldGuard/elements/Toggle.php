@@ -61,10 +61,22 @@ class Toggle extends Element
     }
 
     /**
-     * @param $value
+     * @param mixed $value
      */
     public function validate($value): void
     {
+        // Some Minecraft clients may send strings like "true"/"false" instead of boolean values
+        if (is_string($value)) {
+            // Convert string "true"/"false" to boolean
+            if (strtolower($value) === "true") {
+                $this->setValue(true);
+                return;
+            } elseif (strtolower($value) === "false") {
+                $this->setValue(false);
+                return;
+            }
+        }
+        
         if (!is_bool($value)) {
             throw new FormValidationException("Expected bool, got " . gettype($value));
         }

@@ -85,7 +85,26 @@ class CustomForm extends Form
                     
                     // Skip validation for Label elements as they are display-only
                     if (!($element instanceof Label)) {
-                        $element->validate($value);
+                        try {
+                            $element->validate($value);
+                        } catch (FormValidationException $e) {
+                            // Log the validation error
+                            $player->getServer()->getLogger()->error("Form validation error for element '{$element->getText()}': " . $e->getMessage());
+                            
+                            // Try to make a best-effort conversion based on the expected type
+                            if ($element->getType() === "toggle" && is_string($value)) {
+                                // Convert string to boolean for toggle elements
+                                $value = ($value === "true" || $value === "1");
+                                $element->setValue($value);
+                            } elseif ($element->getType() === "input" && is_bool($value)) {
+                                // Convert boolean to string for input elements
+                                $value = $value ? "true" : "false";
+                                $element->setValue($value);
+                            } else {
+                                // Re-throw the exception if we can't handle this conversion
+                                throw $e;
+                            }
+                        }
                     }
                     
                     $element->setValue($value);

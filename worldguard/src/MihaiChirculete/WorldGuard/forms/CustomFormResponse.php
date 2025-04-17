@@ -36,6 +36,9 @@ class CustomFormResponse
         // If the element is a Label, skip it and get the next element
         while ($element instanceof Label) {
             $element = array_shift($this->elements);
+            if ($element === null) {
+                break;
+            }
         }
         
         if ($element === null || !($element instanceof $expected)) {
