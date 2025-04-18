@@ -42,7 +42,7 @@ class Input extends Element
         // Ensure we always return a string, converting other types if necessary
         if (is_bool($value)) {
             return $value ? "true" : "false";
-        } elseif (is_int($value)) {
+        } elseif (is_int($value) || is_float($value)) {
             return (string)$value;
         }
         

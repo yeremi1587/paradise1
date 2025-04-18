@@ -331,14 +331,12 @@ class WorldGuard extends PluginBase{
                 // Iterate all old effects and remove them
                 if(!empty($oldRegionEffects) && $oldRegionEffects != null){
                     if($this->resourceManager->getConfig()["debugging"] === true){
-                        echo "effect: " . var_export($effect, true) . "effectflag: " . var_export($rgEffects, true);
+                        $this->getLogger()->info("Removing region-given effects, and re-adding any effects the player had.");
                     }
-                    foreach ($oldRegionEffects as $effect){
-                        $player->getEffects()->remove($effect->getType());
-
+                    foreach ($oldRegionEffects as $oldEffect){
+                        $player->getEffects()->remove($oldEffect->getType());
                     }
                 }
-
 
                 if($old->getFlight() === self::FLY_SUPERVISED){
                     if($player->getGamemode() !== GameMode::CREATIVE()){
@@ -421,9 +419,8 @@ class WorldGuard extends PluginBase{
                     if($this->resourceManager->getConfig()["debugging"] === true){
                         $this->getLogger()->info("Removing region-given effects, and re-adding any effects the player had.");
                     }
-                    foreach ($oldRegionEffects as $effect){
-                        $player->getEffects()->remove($effect->getType());
-
+                    foreach ($oldRegionEffects as $oldEffect){
+                        $player->getEffects()->remove($oldEffect->getType());
                     }
                 }
 
@@ -432,8 +429,8 @@ class WorldGuard extends PluginBase{
                     if($this->resourceManager->getConfig()["debugging"] === true){
                         $this->getLogger()->info("Saving the player's current effects that the region overwrites, and giving the new effects from the region.");
                     }
-                    foreach ($newRegionEffects as $effect){
-                        $player->getEffects()->add($effect);
+                    foreach ($newRegionEffects as $newEffect){
+                        $player->getEffects()->add($newEffect);
                     }
                 }
             }
