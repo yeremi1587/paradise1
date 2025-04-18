@@ -1,3 +1,4 @@
+
 <?php
 declare(strict_types=1);
 
@@ -34,11 +35,11 @@ class Button extends Element
     }
 
     /**
-     * @return string|null
+     * @return string
      */
-    public function getType(): ?string
+    public function getType(): string
     {
-        return null;
+        return "button"; // Return a default type instead of null
     }
 
     /**
@@ -47,6 +48,15 @@ class Button extends Element
     public function hasImage(): bool
     {
         return $this->image !== null;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getValue()
+    {
+        // Button returns its text as value
+        return $this->text;
     }
 
     /**
