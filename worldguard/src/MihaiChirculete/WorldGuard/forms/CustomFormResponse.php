@@ -1,137 +1,116 @@
 
 <?php
-declare(strict_types=1);
 
 namespace MihaiChirculete\WorldGuard\forms;
 
-use MihaiChirculete\WorldGuard\elements\{Dropdown, Element, Input, Label, Slider, StepSlider, Toggle};
-use pocketmine\form\FormValidationException;
-use function array_shift;
-use function get_class;
+use MihaiChirculete\WorldGuard\elements\Element;
+use pocketmine\Server;
 
-class CustomFormResponse
-{
+class CustomFormResponse {
+
     /** @var Element[] */
-    private $elements;
+    protected $elements;
+    
+    /** @var array */
+    protected $data;
 
     /**
      * @param Element[] $elements
+     * @param array $data
      */
-    public function __construct(array $elements)
-    {
+    public function __construct(array $elements, array $data){
         $this->elements = $elements;
+        $this->data = $data;
+
+        // Validate the response data
+        $this->validateResponse();
     }
 
     /**
-     * @param string $expected
-     *
-     * @return Element|mixed
-     * @internal
-     *
+     * Validates response data to ensure it matches expected element types.
+     * Logs errors but allows execution to continue with defaults.
      */
-    public function tryGet(string $expected = Element::class)
-    {
-        $element = array_shift($this->elements);
-        
-        // If the element is a Label, skip it and get the next element
-        while ($element instanceof Label) {
-            $element = array_shift($this->elements);
-            if ($element === null) {
-                break;
-            }
-        }
-        
-        if ($element === null || !($element instanceof $expected)) {
-            throw new FormValidationException("Expected a element with of type $expected, got " . ($element === null ? "null" : get_class($element)));
-        }
-        
-        return $element;
-    }
-
-    /**
-     * @return Dropdown
-     */
-    public function getDropdown(): Dropdown
-    {
-        return $this->tryGet(Dropdown::class);
-    }
-
-    /**
-     * @return Input
-     */
-    public function getInput(): Input
-    {
-        return $this->tryGet(Input::class);
-    }
-
-    /**
-     * @return Slider
-     */
-    public function getSlider(): Slider
-    {
-        return $this->tryGet(Slider::class);
-    }
-
-    /**
-     * @return StepSlider
-     */
-    public function getStepSlider(): StepSlider
-    {
-        return $this->tryGet(StepSlider::class);
-    }
-
-    /**
-     * @return Toggle
-     */
-    public function getToggle(): Toggle
-    {
-        return $this->tryGet(Toggle::class);
-    }
-
-    /**
-     * @return Element[]
-     */
-    public function getElements(): array
-    {
-        return $this->elements;
-    }
-
-    /**
-     * @return mixed[]
-     */
-    public function getValues(): array
-    {
-        $values = [];
-        foreach ($this->elements as $element) {
-            if ($element instanceof Label) {
+    protected function validateResponse() : void {
+        foreach($this->elements as $i => $element){
+            if(!isset($this->data[$i])){
+                Server::getInstance()->getLogger()->error("Form validation error: Missing data for element " . $element->getText());
                 continue;
             }
-            
+
             try {
-                // Each element handles its own type conversion via getValue()
-                if ($element instanceof Dropdown) {
-                    $values[] = $element->getSelectedOption();
-                } else {
-                    $values[] = $element->getValue();
-                }
-            } catch (\Throwable $e) {
-                // Log error but don't crash the form
-                error_log("Error getting value from element " . get_class($element) . ": " . $e->getMessage());
+                $element->validateValue($this->data[$i]);
+                $element->setValue($this->data[$i]);
+            } catch(\Exception $e) {
+                // Log the error but don't crash
+                Server::getInstance()->getLogger()->error("Form validation error for element '" . $element->getText() . "': " . $e->getMessage());
                 
-                // Provide a default value based on element type to prevent crashes
-                if ($element instanceof Toggle) {
-                    $values[] = false;
-                } elseif ($element instanceof Input) {
-                    $values[] = "";
-                } elseif ($element instanceof Slider) {
-                    $values[] = $element->getMin();
-                } elseif ($element instanceof StepSlider || $element instanceof Dropdown) {
-                    $values[] = 0; // First option index
-                } else {
-                    $values[] = null;
+                // Set a default value appropriate for the element type
+                switch($element->getType()) {
+                    case "toggle":
+                        $element->setValue(false);
+                        break;
+                    case "slider":
+                    case "stepslider":
+                        $element->setValue(0);
+                        break;
+                    case "dropdown":
+                        $element->setValue(0);
+                        break;
+                    case "input":
+                        $element->setValue("");
+                        break;
+                    default:
+                        $element->setValue(null);
                 }
             }
         }
+    }
+
+    /**
+     * @return array
+     */
+    public function getValues() : array{
+        $values = [];
+
+        foreach($this->elements as $element){
+            if ($element->getKey() !== null) {
+                try {
+                    $values[$element->getKey()] = $element->getValue();
+                } catch (\Throwable $e) {
+                    Server::getInstance()->getLogger()->error("Error getting value for element '" . $element->getText() . "': " . $e->getMessage());
+                    
+                    // Provide sensible defaults based on element type
+                    switch($element->getType()) {
+                        case "toggle":
+                            $values[$element->getKey()] = false;
+                            break;
+                        case "slider":
+                        case "stepslider":
+                            $values[$element->getKey()] = 0;
+                            break;
+                        case "dropdown":
+                            $values[$element->getKey()] = 0;
+                            break;
+                        case "input":
+                            $values[$element->getKey()] = "";
+                            break;
+                        default:
+                            $values[$element->getKey()] = null;
+                    }
+                }
+            }
+        }
+
         return $values;
+    }
+
+    /**
+     * @param string $key
+     *
+     * @return mixed
+     */
+    public function getValue(string $key){
+        $values = $this->getValues();
+        return $values[$key] ?? null;
     }
 }

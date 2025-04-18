@@ -55,9 +55,17 @@ class Region
         }
         $this->flags = $flags;
 
-        foreach ($this->flags["effects"] as $id => $amplifier) {
-            $this->effects[$id] = new EffectInstance(EffectIdMap::getInstance()->fromId($id), 999999999, $amplifier, false);
+        $this->effects = [];
+        
+        if (isset($this->flags["effects"]) && is_array($this->flags["effects"])) {
+            foreach ($this->flags["effects"] as $id => $amplifier) {
+                $effectType = EffectIdMap::getInstance()->fromId($id);
+                if ($effectType !== null) {
+                    $this->effects[$id] = new EffectInstance($effectType, 999999999, $amplifier, false);
+                }
+            }
         }
+        
         $this->level = Server::getInstance()->getWorldManager()->getWorldByName($level);
     }
 
@@ -93,7 +101,6 @@ class Region
 
     public function getFlag(string $flag)
     {
-        //TODO: Move priority from returning the region name, to just returning the value of the flag on the highest priority region.
         return $this->flags[$flag];
     }
 
@@ -105,27 +112,46 @@ class Region
             if (!is_numeric($value)) {
                 return TF::RED . "Value of effect flag must be numeric.";
             }
-            if (!$value > 0) {
+            
+            if (intval($value) <= 0) {
                 $this->flags["effects"] = [];
+                $this->effects = [];
                 ResourceManager::getInstance()->saveRegions(ResourceManager::getInstance()->pluginInstance->getRegions());
-                return TF::YELLOW . 'All "effects" (of "' . $this->name . '") would be removed.';
+                return TF::YELLOW . 'All "effects" (of "' . $this->name . '") have been removed.';
             }
+            
             if (isset($avalue[1])) {
                 if (is_numeric($avalue[1])) {
-                    $this->flags["effects"][$value] = $avalue[1];
-                    $effectType = EffectIdMap::getInstance()->fromId($value);
-                    $this->effects[$value] = new EffectInstance($effectType, 999999999, --$avalue[1], false);
-                    ResourceManager::getInstance()->saveRegions(ResourceManager::getInstance()->pluginInstance->getRegions());
-                    return TF::YELLOW . 'Added "' . ($this->effects[$value])->getType()->getName() . ' ' . Utils::getRomanNumber(++$avalue[1]) . '" effect to "' . $this->name . '" region.';
+                    $effectId = intval($value);
+                    $amplifier = intval($avalue[1]);
+                    
+                    $this->flags["effects"][$effectId] = $amplifier;
+                    
+                    $effectType = EffectIdMap::getInstance()->fromId($effectId);
+                    if ($effectType !== null) {
+                        $this->effects[$effectId] = new EffectInstance($effectType, 999999999, $amplifier, false);
+                        
+                        ResourceManager::getInstance()->saveRegions(ResourceManager::getInstance()->pluginInstance->getRegions());
+                        return TF::YELLOW . 'Added "' . $effectType->getName() . ' ' . Utils::getRomanNumber(++$amplifier) . '" effect to "' . $this->name . '" region.';
+                    } else {
+                        return TF::RED . "Invalid effect ID: " . $effectId;
+                    }
                 } else {
-                    return TF::RED . "Amplifier must be numerical.\n" . TF::GRAY . 'Example: /region flags set ' . $this->name . ' ' . $value . ' 1';
+                    return TF::RED . "Amplifier must be numerical.\n" . TF::GRAY . 'Example: /region flags set ' . $this->name . ' effects ' . $value . ' 1';
                 }
-
             } else {
-                $this->flags["effects"][$value] = 0;
-                $this->effects[$value] = new EffectInstance(EffectIdMap::getInstance()->fromId($value), 999999999, 0);
-                ResourceManager::getInstance()->saveRegions(ResourceManager::getInstance()->pluginInstance->getRegions());
-                return TF::YELLOW . 'Added "' . EffectIDMap::getInstance()->toID(($this->effects[$value])->getType()) . '" effect to "' . $this->name . '" region.';
+                $effectId = intval($value);
+                $this->flags["effects"][$effectId] = 0;
+                
+                $effectType = EffectIdMap::getInstance()->fromId($effectId);
+                if ($effectType !== null) {
+                    $this->effects[$effectId] = new EffectInstance($effectType, 999999999, 0, false);
+                    
+                    ResourceManager::getInstance()->saveRegions(ResourceManager::getInstance()->pluginInstance->getRegions());
+                    return TF::YELLOW . 'Added "' . $effectType->getName() . '" effect to "' . $this->name . '" region.';
+                } else {
+                    return TF::RED . "Invalid effect ID: " . $effectId;
+                }
             }
         }
 
