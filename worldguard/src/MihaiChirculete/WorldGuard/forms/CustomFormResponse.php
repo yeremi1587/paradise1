@@ -107,18 +107,26 @@ class CustomFormResponse
                 continue;
             }
             
-            // Each element is responsible for returning the correct type via getValue()
             try {
-                $value = $element instanceof Dropdown ? $element->getSelectedOption() : $element->getValue();
-                $values[] = $value;
+                // Each element handles its own type conversion via getValue()
+                if ($element instanceof Dropdown) {
+                    $values[] = $element->getSelectedOption();
+                } else {
+                    $values[] = $element->getValue();
+                }
             } catch (\Throwable $e) {
                 // Log error but don't crash the form
                 error_log("Error getting value from element " . get_class($element) . ": " . $e->getMessage());
-                // Provide a default value based on element type
+                
+                // Provide a default value based on element type to prevent crashes
                 if ($element instanceof Toggle) {
                     $values[] = false;
                 } elseif ($element instanceof Input) {
                     $values[] = "";
+                } elseif ($element instanceof Slider) {
+                    $values[] = $element->getMin();
+                } elseif ($element instanceof StepSlider || $element instanceof Dropdown) {
+                    $values[] = 0; // First option index
                 } else {
                     $values[] = null;
                 }

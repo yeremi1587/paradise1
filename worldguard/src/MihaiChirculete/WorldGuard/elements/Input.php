@@ -24,6 +24,7 @@ class Input extends Element
         parent::__construct($text);
         $this->placeholder = $placeholder;
         $this->default = $default;
+        $this->value = $default; // Initialize value with default to avoid null
     }
 
     /**
@@ -32,9 +33,17 @@ class Input extends Element
     public function getValue(): string
     {
         $value = parent::getValue();
+        
+        // Handle null by returning default
+        if ($value === null) {
+            return $this->default;
+        }
+        
         // Ensure we always return a string, converting other types if necessary
         if (is_bool($value)) {
             return $value ? "true" : "false";
+        } elseif (is_int($value)) {
+            return (string)$value;
         }
         
         return (string)$value;
@@ -80,8 +89,7 @@ class Input extends Element
      */
     public function validate($value): void
     {
-        // Accept any value type and convert it to string when getValue() is called
-        // This prevents validation errors while still maintaining type safety
+        // Store any value, conversion will happen in getValue()
         $this->setValue($value);
     }
 }

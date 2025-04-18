@@ -16,6 +16,7 @@ class Toggle extends Element
     {
         parent::__construct($text);
         $this->default = $default;
+        $this->value = $default; // Initialize value with default to avoid null
     }
 
     /**
@@ -23,7 +24,29 @@ class Toggle extends Element
      */
     public function getValue(): bool
     {
-        return parent::getValue();
+        $value = parent::getValue();
+        
+        // Handle null by returning default
+        if ($value === null) {
+            return $this->default;
+        }
+
+        // Convert string "true"/"false" to boolean
+        if (is_string($value)) {
+            if (strtolower($value) === "true" || $value === "1") {
+                return true;
+            } elseif (strtolower($value) === "false" || $value === "0") {
+                return false;
+            }
+        }
+        
+        // Convert integer to boolean
+        if (is_int($value)) {
+            return $value !== 0;
+        }
+        
+        // Ensure a boolean return
+        return (bool)$value;
     }
 
     /**
@@ -31,7 +54,7 @@ class Toggle extends Element
      */
     public function hasChanged(): bool
     {
-        return $this->default !== $this->value;
+        return $this->default !== $this->getValue();
     }
 
     /**
@@ -65,20 +88,7 @@ class Toggle extends Element
      */
     public function validate($value): void
     {
-        // Some Minecraft clients may send strings like "true"/"false" instead of boolean values
-        if (is_string($value)) {
-            // Convert string "true"/"false" to boolean
-            if (strtolower($value) === "true") {
-                $this->setValue(true);
-                return;
-            } elseif (strtolower($value) === "false") {
-                $this->setValue(false);
-                return;
-            }
-        }
-        
-        if (!is_bool($value)) {
-            throw new FormValidationException("Expected bool, got " . gettype($value));
-        }
+        // Store value without validation, conversion will happen in getValue()
+        $this->setValue($value);
     }
 }
