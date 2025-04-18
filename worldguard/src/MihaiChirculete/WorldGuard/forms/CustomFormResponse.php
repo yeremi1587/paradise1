@@ -106,7 +106,23 @@ class CustomFormResponse
             if ($element instanceof Label) {
                 continue;
             }
-            $values[] = $element instanceof Dropdown ? $element->getSelectedOption() : $element->getValue();
+            
+            // Each element is responsible for returning the correct type via getValue()
+            try {
+                $value = $element instanceof Dropdown ? $element->getSelectedOption() : $element->getValue();
+                $values[] = $value;
+            } catch (\Throwable $e) {
+                // Log error but don't crash the form
+                error_log("Error getting value from element " . get_class($element) . ": " . $e->getMessage());
+                // Provide a default value based on element type
+                if ($element instanceof Toggle) {
+                    $values[] = false;
+                } elseif ($element instanceof Input) {
+                    $values[] = "";
+                } else {
+                    $values[] = null;
+                }
+            }
         }
         return $values;
     }

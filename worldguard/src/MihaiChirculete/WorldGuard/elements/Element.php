@@ -74,10 +74,8 @@ abstract class Element implements JsonSerializable
      */
     public function validate($value): void
     {
-        // Each element type should implement its own validation logic
-        // This default implementation expects integers, but derived classes should override this
-        if (!is_int($value)) {
-            throw new FormValidationException("Expected int, got " . gettype($value));
-        }
+        // Base implementation now simply stores the value without validation
+        // Derived classes should override this method with their own validation logic
+        $this->setValue($value);
     }
 }

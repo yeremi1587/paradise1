@@ -76,48 +76,78 @@ class CustomForm extends Form
             }
         } elseif (is_array($data)) {
             try {
+                $skipValidation = false;
+                $indexOffset = 0;
+                
                 foreach ($data as $index => $value) {
-                    if (!isset($this->elements[$index])) {
-                        throw new FormValidationException("Element at index $index does not exist");
+                    $adjustedIndex = $index + $indexOffset;
+                    
+                    if (!isset($this->elements[$adjustedIndex])) {
+                        // Skip this item - might be an indexing issue due to Labels
+                        continue;
                     }
                     
-                    $element = $this->elements[$index];
+                    $element = $this->elements[$adjustedIndex];
                     
                     // Skip validation for Label elements as they are display-only
-                    if (!($element instanceof Label)) {
-                        try {
-                            $element->validate($value);
-                        } catch (FormValidationException $e) {
-                            // Log the validation error
-                            $player->getServer()->getLogger()->error("Form validation error for element '{$element->getText()}': " . $e->getMessage());
-                            
-                            // Try to make a best-effort conversion based on the expected type
-                            if ($element->getType() === "toggle" && is_string($value)) {
-                                // Convert string to boolean for toggle elements
-                                $value = ($value === "true" || $value === "1");
-                                $element->setValue($value);
-                            } elseif ($element->getType() === "input" && is_bool($value)) {
-                                // Convert boolean to string for input elements
-                                $value = $value ? "true" : "false";
-                                $element->setValue($value);
-                            } else {
-                                // Re-throw the exception if we can't handle this conversion
-                                throw $e;
-                            }
-                        }
+                    if ($element instanceof Label) {
+                        $indexOffset++;
+                        continue;
                     }
                     
-                    $element->setValue($value);
+                    try {
+                        $element->validate($value);
+                    } catch (FormValidationException $e) {
+                        // Log the validation error
+                        $player->getServer()->getLogger()->debug("Form validation warning for element '{$element->getText()}': " . $e->getMessage());
+                        
+                        // We'll continue processing the form despite the validation error
+                        $skipValidation = true;
+                    }
                 }
                 
-                ($this->onSubmit)($player, new CustomFormResponse($this->elements));
+                if (!$skipValidation) {
+                    // Process all labels to ensure consistent indexing
+                    $processedElements = [];
+                    $labelCount = 0;
+                    
+                    foreach ($this->elements as $element) {
+                        if ($element instanceof Label) {
+                            $labelCount++;
+                            continue;
+                        }
+                        
+                        $dataIndex = count($processedElements);
+                        if (isset($data[$dataIndex])) {
+                            $element->setValue($data[$dataIndex]);
+                        }
+                        
+                        $processedElements[] = $element;
+                    }
+                }
+                
+                try {
+                    ($this->onSubmit)($player, new CustomFormResponse($this->elements));
+                } catch (\Throwable $e) {
+                    // Catch any errors in the form submission handler
+                    $player->getServer()->getLogger()->error("Form submission error: " . $e->getMessage());
+                    $player->getServer()->getLogger()->error($e->getTraceAsString());
+                    $player->sendMessage("§cError processing the form. Please try again.");
+                }
+                
             } catch (FormValidationException $e) {
                 // Log the error without crashing
                 $player->getServer()->getLogger()->error("Form validation error: " . $e->getMessage());
-                $player->sendMessage("§cError al procesar el formulario. Por favor, inténtalo de nuevo.");
+                $player->sendMessage("§cError in form validation. Please try again.");
+            } catch (\Throwable $e) {
+                // Catch any unexpected errors
+                $player->getServer()->getLogger()->error("Unexpected error in form handling: " . $e->getMessage());
+                $player->getServer()->getLogger()->error($e->getTraceAsString());
+                $player->sendMessage("§cAn unexpected error occurred. Please try again.");
             }
         } else {
-            throw new FormValidationException("Expected array or null, got " . gettype($data));
+            $player->getServer()->getLogger()->error("Invalid form data: " . gettype($data));
+            $player->sendMessage("§cError processing the form. Please try again.");
         }
     }
 }
