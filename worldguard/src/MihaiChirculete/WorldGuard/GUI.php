@@ -1,3 +1,4 @@
+
 <?php
 
 
@@ -22,10 +23,11 @@ class GUI
         $lang = $plugin->resourceManager->getLanguagePack();
 
         $issuer->sendForm(new MenuForm(
-            "§9§l" . $lang["gui_wg_menu_title"], $lang["gui_label_choose_option"], [new Button("§6§l" . $lang["gui_btn_rg_management"], new Image("textures/items/book_writable", "path")),
-            new Button("§5§l" . $lang["gui_btn_help"])],
+            "§9§l" . $lang["gui_wg_menu_title"], $lang["gui_label_choose_option"], [
+                new Button("§6§l" . $lang["gui_btn_rg_management"], new Image("textures/items/book_writable", "path")),
+                new Button("§5§l" . $lang["gui_btn_help"])
+            ],
             function (Player $player, Button $selected): void {
-
                 switch ($selected->getValue()) {
                     case 0:
                         self::displayRgManagement($player);
