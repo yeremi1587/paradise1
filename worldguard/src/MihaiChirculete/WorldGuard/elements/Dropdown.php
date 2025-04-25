@@ -1,3 +1,4 @@
+
 <?php
 declare(strict_types=1);
 
@@ -70,10 +71,24 @@ class Dropdown extends Element
         ];
     }
 
-    public function validate($value): void
+    /**
+     * @return mixed
+     */
+    public function getValue()
+    {
+        return $this->value;
+    }
+
+    /**
+     * @param mixed $value
+     * @throws FormValidationException
+     */
+    public function validateValue($value): void
     {
         if (isset($this->options[$value])) {
-            parent::validate($value);
+            parent::validateValue($value);
+        } else {
+            throw new FormValidationException("Invalid option selected");
         }
     }
 }

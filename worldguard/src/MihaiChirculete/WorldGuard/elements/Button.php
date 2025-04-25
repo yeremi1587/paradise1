@@ -3,10 +3,17 @@
 declare(strict_types=1);
 
 namespace MihaiChirculete\WorldGuard\elements;
-class Button extends Element
+
+use pocketmine\form\FormValidationException;
+
+class Button implements \JsonSerializable
 {
+    /** @var string */
+    protected $text;
     /** @var Image|null */
     protected $image;
+    /** @var mixed */
+    protected $value;
     /** @var string */
     protected $type;
 
@@ -16,31 +23,17 @@ class Button extends Element
      */
     public function __construct(string $text, ?Image $image = null)
     {
-        parent::__construct($text);
+        $this->text = $text;
         $this->image = $image;
         $this->type = "button";
     }
 
     /**
-     * @param string ...$texts
-     *
-     * @return Button[]
-     */
-    public static function createFromList(string ...$texts): array
-    {
-        $buttons = [];
-        foreach ($texts as $text) {
-            $buttons[] = new self($text);
-        }
-        return $buttons;
-    }
-
-    /**
      * @return string
      */
-    public function getType(): string
+    public function getText(): string
     {
-        return $this->type;
+        return $this->text;
     }
 
     /**
@@ -52,11 +45,27 @@ class Button extends Element
     }
 
     /**
+     * @return string
+     */
+    public function getType(): string
+    {
+        return $this->type;
+    }
+
+    /**
      * @return mixed
      */
     public function getValue()
     {
-        return $this->value ?? $this->text;
+        return $this->value;
+    }
+
+    /**
+     * @param mixed $value
+     */
+    public function setValue($value): void
+    {
+        $this->value = $value;
     }
 
     /**
@@ -70,16 +79,16 @@ class Button extends Element
         }
         return $data;
     }
-    
+
     /**
      * @return array
      */
     public function jsonSerialize(): array
     {
-        return [
-            "type" => $this->getType(),
-            "text" => $this->getText(),
-            "image" => $this->hasImage() ? $this->image : null
-        ];
+        $data = ["text" => $this->getText()];
+        if ($this->hasImage()) {
+            $data["image"] = $this->image;
+        }
+        return $data;
     }
 }
