@@ -1,7 +1,6 @@
 
 <?php
 
-
 namespace MihaiChirculete\WorldGuard;
 
 use pocketmine\player\Player;
@@ -14,7 +13,6 @@ use MihaiChirculete\WorldGuard\elements\{Button, Dropdown, Image, Input, Label, 
 
 class GUI
 {
-
     public static $currentlyEditedRg = "";
 
     public static function displayMenu(Player $issuer)
@@ -23,7 +21,9 @@ class GUI
         $lang = $plugin->resourceManager->getLanguagePack();
 
         $issuer->sendForm(new MenuForm(
-            "§9§l" . $lang["gui_wg_menu_title"], $lang["gui_label_choose_option"], [
+            "§9§l" . $lang["gui_wg_menu_title"], 
+            $lang["gui_label_choose_option"], 
+            [
                 new Button("§6§l" . $lang["gui_btn_rg_management"], new Image("textures/items/book_writable", "path")),
                 new Button("§5§l" . $lang["gui_btn_help"])
             ],

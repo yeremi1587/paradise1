@@ -1,99 +1,67 @@
+
 <?php
 declare(strict_types=1);
 
 namespace MihaiChirculete\WorldGuard\forms;
 
-use Closure;
-use function array_merge;
+use pocketmine\form\Form as PMForm;
+use pocketmine\player\Player;
 
-abstract class Form implements \pocketmine\form\Form
-{
-    protected const TYPE_MODAL = "modal";
-    protected const TYPE_MENU = "form";
-    protected const TYPE_CUSTOM_FORM = "custom_form";
+abstract class Form implements PMForm {
+    public const TYPE_MODAL = "modal";
+    public const TYPE_MENU = "form";
+    public const TYPE_CUSTOM_FORM = "custom_form";
+
     /** @var string */
-    private $title;
-    /** @var Closure|null */
-    private $onCreate;
-    /** @var Closure|null */
-    private $onDestroy;
+    protected $title;
 
     /**
      * @param string $title
      */
-    public function __construct(string $title)
-    {
+    public function __construct(string $title) {
         $this->title = $title;
     }
 
-    public function __destruct()
-    {
-        if ($this->onDestroy !== null) {
-            ($this->onDestroy)();
-        }
-    }
+    /**
+     * Returns the form type used when sending this form to clients
+     * @return string
+     */
+    abstract public function getType() : string;
+
+    /**
+     * Returns form data to send to the client
+     * @return array
+     */
+    abstract protected function serializeFormData() : array;
 
     /**
      * @return array
      */
-    final public function jsonSerialize(): array
-    {
-        if ($this->onCreate !== null) {
-            ($this->onCreate)();
-        }
+    final public function jsonSerialize() : array {
         return array_merge([
-            "title" => $this->getTitle(), "type" => $this->getType()
+            "type" => $this->getType(),
+            "title" => $this->title
         ], $this->serializeFormData());
     }
 
     /**
      * @return string
      */
-    public function getTitle(): string
-    {
+    public function getTitle() : string {
         return $this->title;
     }
 
     /**
      * @param string $title
-     *
-     * @return $this
      */
-    public function setTitle(string $title): self
-    {
+    public function setTitle(string $title) : void {
         $this->title = $title;
-        return $this;
     }
 
     /**
-     * @param Closure $onCreate
-     *
-     * @return $this
+     * Called when a player submits the form
+     * @param Player $player
+     * @param mixed $data
      */
-    public function setOnCreate(Closure $onCreate): self
-    {
-        $this->onCreate = $onCreate;
-        return $this;
-    }
-
-    /**
-     * @param Closure $onDestroy
-     *
-     * @return $this
-     */
-    public function setOnDestroy(Closure $onDestroy): self
-    {
-        $this->onDestroy = $onDestroy;
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    abstract public function getType(): string;
-
-    /**
-     * @return array
-     */
-    abstract protected function serializeFormData(): array;
+    abstract public function handleResponse(Player $player, $data) : void;
 }
