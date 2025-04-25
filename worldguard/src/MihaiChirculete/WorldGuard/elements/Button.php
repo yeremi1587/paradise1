@@ -29,6 +29,20 @@ class Button implements \JsonSerializable
     }
 
     /**
+     * @param string ...$texts
+     *
+     * @return Button[]
+     */
+    public static function createFromList(string ...$texts): array
+    {
+        $buttons = [];
+        foreach ($texts as $text) {
+            $buttons[] = new self($text);
+        }
+        return $buttons;
+    }
+
+    /**
      * @return string
      */
     public function getText(): string

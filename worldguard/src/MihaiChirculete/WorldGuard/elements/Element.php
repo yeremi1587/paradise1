@@ -3,7 +3,7 @@
 
 namespace MihaiChirculete\WorldGuard\elements;
 
-abstract class Element{
+abstract class Element implements \JsonSerializable {
 
     /** @var string */
     protected $text;

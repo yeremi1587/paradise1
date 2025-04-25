@@ -1,3 +1,4 @@
+
 <?php
 
 namespace MihaiChirculete\WorldGuard;
@@ -21,11 +22,7 @@ class GUI
 
         // Create buttons explicitly with proper constructors
         $managementButton = new Button("§6§l" . $lang["gui_btn_rg_management"]);
-        $managementButton->setValue(0);
-        
         $helpButton = new Button("§5§l" . $lang["gui_btn_help"]);
-        $helpButton->setValue(1);
-        
         $buttons = [$managementButton, $helpButton];
 
         // Create the menu form
@@ -52,14 +49,24 @@ class GUI
     {
         $lang = Utils::getPluginFromIssuer($issuer)->resourceManager->getLanguagePack();
 
-        $issuer->sendForm(new MenuForm(
-            "§9§l" . $lang["gui_btn_rg_management"], $lang["gui_label_choose_option"],
-            [new Button($lang["gui_btn_manage_existing"]),
-                new Button($lang["gui_btn_create_region"]),
-                new Button($lang["gui_btn_redefine_region"]),
-                new Button($lang["gui_btn_delete_region"])],
-            function (Player $player, Button $selected): void {
+        // Create buttons explicitly
+        $manageExistingButton = new Button($lang["gui_btn_manage_existing"]);
+        $createRegionButton = new Button($lang["gui_btn_create_region"]);
+        $redefineRegionButton = new Button($lang["gui_btn_redefine_region"]);
+        $deleteRegionButton = new Button($lang["gui_btn_delete_region"]);
+        
+        $buttons = [
+            $manageExistingButton,
+            $createRegionButton,
+            $redefineRegionButton,
+            $deleteRegionButton
+        ];
 
+        $issuer->sendForm(new MenuForm(
+            "§9§l" . $lang["gui_btn_rg_management"], 
+            $lang["gui_label_choose_option"],
+            $buttons,
+            function (Player $player, Button $selected): void {
                 switch ($selected->getValue()) {
                     case 0:
                         self::displayExistingRegions($player);
@@ -418,6 +425,7 @@ class GUI
                 new Label($lang["gui_help_menu_label2"]),
             ],
             function (Player $player, CustomFormResponse $response): void {
+                // Empty callback as this is just an informational form
             }
         ));
     }

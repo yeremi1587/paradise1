@@ -107,11 +107,7 @@ class MenuForm extends Form
     {
         $buttonsData = [];
         foreach ($this->buttons as $button) {
-            $data = ["text" => $button->getText()];
-            if ($button->hasImage()) {
-                $data["image"] = $button->hasImage() ? ["type" => "path", "data" => "textures/items/book_writable"] : null;
-            }
-            $buttonsData[] = $data;
+            $buttonsData[] = $button->jsonSerialize();
         }
         
         return [
