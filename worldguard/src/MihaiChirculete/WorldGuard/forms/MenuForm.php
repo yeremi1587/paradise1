@@ -105,8 +105,17 @@ class MenuForm extends Form
      */
     protected function serializeFormData(): array
     {
+        $buttonsData = [];
+        foreach ($this->buttons as $button) {
+            $data = ["text" => $button->getText()];
+            if ($button->hasImage()) {
+                $data["image"] = $button->hasImage() ? ["type" => "path", "data" => "textures/items/book_writable"] : null;
+            }
+            $buttonsData[] = $data;
+        }
+        
         return [
-            "buttons" => $this->buttons,
+            "buttons" => $buttonsData,
             "content" => $this->text
         ];
     }

@@ -1,4 +1,3 @@
-
 <?php
 
 namespace MihaiChirculete\WorldGuard;
@@ -20,12 +19,17 @@ class GUI
         $plugin = Utils::getPluginFromIssuer($issuer);
         $lang = $plugin->resourceManager->getLanguagePack();
 
-        $buttons = [
-            new Button("§6§l" . $lang["gui_btn_rg_management"], new Image("textures/items/book_writable", "path")),
-            new Button("§5§l" . $lang["gui_btn_help"])
-        ];
+        // Create buttons explicitly with proper constructors
+        $managementButton = new Button("§6§l" . $lang["gui_btn_rg_management"]);
+        $managementButton->setValue(0);
+        
+        $helpButton = new Button("§5§l" . $lang["gui_btn_help"]);
+        $helpButton->setValue(1);
+        
+        $buttons = [$managementButton, $helpButton];
 
-        $issuer->sendForm(new MenuForm(
+        // Create the menu form
+        $menuForm = new MenuForm(
             "§9§l" . $lang["gui_wg_menu_title"],
             $lang["gui_label_choose_option"],
             $buttons,
@@ -39,7 +43,9 @@ class GUI
                         break;
                 }
             }
-        ));
+        );
+        
+        $issuer->sendForm($menuForm);
     }
 
     public static function displayRgManagement(Player $issuer)

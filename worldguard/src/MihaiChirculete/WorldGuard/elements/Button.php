@@ -18,6 +18,7 @@ class Button extends Element
     {
         parent::__construct($text);
         $this->image = $image;
+        $this->type = "button";
     }
 
     /**
@@ -39,7 +40,7 @@ class Button extends Element
      */
     public function getType(): string
     {
-        return "button";
+        return $this->type;
     }
 
     /**
@@ -63,7 +64,7 @@ class Button extends Element
      */
     public function serializeElementData(): array
     {
-        $data = ["text" => $this->text];
+        $data = ["text" => $this->getText()];
         if ($this->hasImage()) {
             $data["image"] = $this->image;
         }
@@ -75,10 +76,10 @@ class Button extends Element
      */
     public function jsonSerialize(): array
     {
-        $data = ["text" => $this->text];
-        if ($this->hasImage()) {
-            $data["image"] = $this->image;
-        }
-        return $data;
+        return [
+            "type" => $this->getType(),
+            "text" => $this->getText(),
+            "image" => $this->hasImage() ? $this->image : null
+        ];
     }
 }
