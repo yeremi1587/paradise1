@@ -39,7 +39,7 @@ class Button extends Element
      */
     public function getType(): string
     {
-        return "button"; // Return a default type instead of null
+        return "button";
     }
 
     /**
@@ -55,14 +55,25 @@ class Button extends Element
      */
     public function getValue()
     {
-        // Button returns its text as value
-        return $this->text;
+        return $this->value ?? $this->text;
     }
 
     /**
      * @return array
      */
     public function serializeElementData(): array
+    {
+        $data = ["text" => $this->text];
+        if ($this->hasImage()) {
+            $data["image"] = $this->image;
+        }
+        return $data;
+    }
+    
+    /**
+     * @return array
+     */
+    public function jsonSerialize(): array
     {
         $data = ["text" => $this->text];
         if ($this->hasImage()) {
