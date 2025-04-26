@@ -132,19 +132,34 @@ class GUI
     public static function displayRgRedefine(Player $issuer)
     {
         $lang = Utils::getPluginFromIssuer($issuer)->resourceManager->getLanguagePack();
-
-        $regions = array_keys(Utils::getPluginFromIssuer($issuer)->getRegions());
-        foreach ($regions as $key => $value) {
-            $regions[$key] = strval($value);
+        $plugin = Utils::getPluginFromIssuer($issuer);
+        
+        $regions = array_keys($plugin->getRegions());
+        if (empty($regions)) {
+            $issuer->sendMessage("§c" . ($lang["gui_no_regions_error"] ?? "No hay regiones creadas aún. Crea una región primero."));
+            return;
         }
 
         $issuer->sendForm(new CustomForm("§9§l" . $lang["gui_btn_rg_management"],
             [
                 new Dropdown($lang["gui_dropdown_select_redefine"], $regions),
             ],
-            function (Player $player, CustomFormResponse $response): void {
-                list($rgName) = $response->getValues();
-                $player->getServer()->dispatchCommand($player, "rg redefine $rgName");
+            function (Player $player, CustomFormResponse $response) use ($plugin): void {
+                try {
+                    $values = $response->getValues();
+                    $rgIndex = $values[0] ?? 0;
+                    
+                    $regions = array_keys($plugin->getRegions());
+                    if (isset($regions[$rgIndex])) {
+                        $rgName = $regions[$rgIndex];
+                        $player->getServer()->dispatchCommand($player, "rg redefine $rgName");
+                    } else {
+                        $player->sendMessage("§c" . "Error: La región seleccionada no existe.");
+                    }
+                } catch (\Exception $e) {
+                    $player->getServer()->getLogger()->error("Error in region redefine: " . $e->getMessage());
+                    $player->sendMessage("§c" . "Error al redefinir la región. Por favor, inténtalo de nuevo.");
+                }
             }
         ));
     }
@@ -152,19 +167,34 @@ class GUI
     public static function displayRgDelete(Player $issuer)
     {
         $lang = Utils::getPluginFromIssuer($issuer)->resourceManager->getLanguagePack();
-
-        $regions = array_keys($issuer->getServer()->getPluginManager()->getPlugin("WorldGuard")->getRegions());
-        foreach ($regions as $key => $value) {
-            $regions[$key] = strval($value);
+        $plugin = Utils::getPluginFromIssuer($issuer);
+        
+        $regions = array_keys($plugin->getRegions());
+        if (empty($regions)) {
+            $issuer->sendMessage("§c" . ($lang["gui_no_regions_error"] ?? "No hay regiones creadas aún. Crea una región primero."));
+            return;
         }
 
         $issuer->sendForm(new CustomForm("§9§l" . $lang["gui_btn_rg_management"],
             [
                 new Dropdown($lang["gui_dropdown_select_delete"], $regions),
             ],
-            function (Player $player, CustomFormResponse $response): void {
-                list($rgName) = $response->getValues();
-                $player->getServer()->dispatchCommand($player, "rg delete $rgName");
+            function (Player $player, CustomFormResponse $response) use ($plugin): void {
+                try {
+                    $values = $response->getValues();
+                    $rgIndex = $values[0] ?? 0;
+                    
+                    $regions = array_keys($plugin->getRegions());
+                    if (isset($regions[$rgIndex])) {
+                        $rgName = $regions[$rgIndex];
+                        $player->getServer()->dispatchCommand($player, "rg delete $rgName");
+                    } else {
+                        $player->sendMessage("§c" . "Error: La región seleccionada no existe.");
+                    }
+                } catch (\Exception $e) {
+                    $player->getServer()->getLogger()->error("Error in region delete: " . $e->getMessage());
+                    $player->sendMessage("§c" . "Error al eliminar la región. Por favor, inténtalo de nuevo.");
+                }
             }
         ));
     }
@@ -172,29 +202,29 @@ class GUI
     public static function displayExistingRegions(Player $issuer)
     {
         $lang = Utils::getPluginFromIssuer($issuer)->resourceManager->getLanguagePack();
-        $regions = array_keys($issuer->getServer()->getPluginManager()->getPlugin("WorldGuard")->getRegions());
+        $plugin = Utils::getPluginFromIssuer($issuer);
+        $regions = array_keys($plugin->getRegions());
         
         if (empty($regions)) {
             $issuer->sendMessage("§c" . ($lang["gui_no_regions_error"] ?? "No hay regiones creadas aún. Crea una región primero."));
             return;
-        }
-        
-        foreach ($regions as $key => $value) {
-            $regions[$key] = strval($value);
         }
 
         $issuer->sendForm(new CustomForm("§9§l" . $lang["gui_btn_rg_management"],
             [
                 new Dropdown($lang["gui_dropdown_select_manage"], $regions),
             ],
-            function (Player $player, CustomFormResponse $response): void {
+            function (Player $player, CustomFormResponse $response) use ($plugin): void {
                 try {
                     $values = $response->getValues();
-                    $rgName = $values[0] ?? null;
-                    if($rgName !== null){
-                        self::displayRgEditing($player, strval($rgName));
+                    $rgIndex = $values[0] ?? 0;
+                    
+                    $regions = array_keys($plugin->getRegions());
+                    if (isset($regions[$rgIndex])) {
+                        $rgName = $regions[$rgIndex];
+                        self::displayRgEditing($player, $rgName);
                     } else {
-                        $player->sendMessage("§c" . "No se ha seleccionado ninguna región.");
+                        $player->sendMessage("§c" . "Error: La región seleccionada no existe.");
                     }
                 } catch (\Exception $e) {
                     $player->sendMessage("§c" . "Hubo un error al procesar tu selección. Por favor, inténtalo de nuevo.");
@@ -207,11 +237,14 @@ class GUI
     public static function displayRgEditing(Player $issuer, $rgName)
     {
         $plugin = Utils::getPluginFromIssuer($issuer);
-        $rg = $plugin->getRegion($rgName);
-        if ($rg === null) {
+        $regions = $plugin->getRegions();
+        
+        if (!isset($regions[$rgName])) {
             $issuer->sendMessage("§c" . "La región $rgName no existe.");
             return;
         }
+        
+        $rg = $regions[$rgName];
         self::$currentlyEditedRg = $rgName;
 
         $lang = $plugin->resourceManager->getLanguagePack();

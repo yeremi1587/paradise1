@@ -92,16 +92,16 @@ class CustomForm extends Form
                 }
             }
             
-            // Collect processable data for the response
+            // Process the data for each element
+            $index = 0;
             $processedData = [];
             
-            // Process the data for each element
-            foreach ($data as $index => $value) {
+            foreach ($data as $value) {
                 if (!isset($nonLabelElements[$index])) {
                     $player->getServer()->getLogger()->warning("Form data index $index out of bounds");
                     continue;
                 }
-
+                
                 $element = $nonLabelElements[$index];
                 $processedData[$index] = $value;
                 
@@ -113,10 +113,13 @@ class CustomForm extends Form
                     // Log the error but continue processing
                     $player->getServer()->getLogger()->error("Form validation error for element '{$element->getText()}': " . $e->getMessage());
                 }
+                
+                $index++;
             }
-
-            // Submit the form with both elements and processed data
-            ($this->onSubmit)($player, new CustomFormResponse($this->elements, $processedData));
+            
+            // Create and pass the response
+            $response = new CustomFormResponse($this->elements, $processedData);
+            ($this->onSubmit)($player, $response);
             
         } catch (\Throwable $e) {
             $player->getServer()->getLogger()->error("Error processing form: " . $e->getMessage());
