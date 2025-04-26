@@ -22,7 +22,9 @@ class GUI
 
         // Create buttons explicitly with proper constructors
         $managementButton = new Button("§6§l" . $lang["gui_btn_rg_management"]);
+        $managementButton->setValue(0);
         $helpButton = new Button("§5§l" . $lang["gui_btn_help"]);
+        $helpButton->setValue(1);
         $buttons = [$managementButton, $helpButton];
 
         // Create the menu form
@@ -51,9 +53,13 @@ class GUI
 
         // Create buttons explicitly
         $manageExistingButton = new Button($lang["gui_btn_manage_existing"]);
+        $manageExistingButton->setValue(0);
         $createRegionButton = new Button($lang["gui_btn_create_region"]);
+        $createRegionButton->setValue(1);
         $redefineRegionButton = new Button($lang["gui_btn_redefine_region"]);
+        $redefineRegionButton->setValue(2);
         $deleteRegionButton = new Button($lang["gui_btn_delete_region"]);
+        $deleteRegionButton->setValue(3);
         
         $buttons = [
             $manageExistingButton,

@@ -6,43 +6,58 @@ namespace MihaiChirculete\WorldGuard\elements;
 
 use pocketmine\form\FormValidationException;
 
-class Label extends Element
-{
+class Label extends Element {
+
+    /** @var mixed */
+    protected $value = null;
+
     /**
-     * @return string
+     * @param string $text
      */
-    public function getType(): string
-    {
-        return "label";
+    public function __construct(string $text) {
+        parent::__construct($text);
+        $this->type = "label";
+    }
+
+    /**
+     * Returns the value of the element
+     * @return mixed
+     */
+    public function getValue() {
+        return $this->value;
+    }
+
+    /**
+     * @param mixed $value
+     */
+    public function setValue($value) : void {
+        $this->value = $value;
+    }
+
+    /**
+     * Validates the value returned from the form
+     * @param mixed $value
+     *
+     * @throws FormValidationException if the value is invalid
+     */
+    public function validateValue($value) : void {
+        // Labels don't have values coming back from the form, so there's nothing to validate
     }
 
     /**
      * @return array
      */
-    public function serializeElementData(): array
-    {
-        return [];
+    public function serializeElementData() : array {
+        return [
+            "type" => $this->type,
+            "text" => $this->text
+        ];
     }
 
     /**
-     * @return mixed
+     * @return array
      */
-    public function getValue()
-    {
-        return null; // Labels don't have values
-    }
-
-    /**
-     * Labels should accept any value without validation since they are just display elements
-     * and don't actually store user input. This fixes issues with some Minecraft Bedrock clients
-     * that send string values for labels instead of null.
-     * 
-     * @param mixed $value
-     * @return void
-     */
-    public function validateValue($value): void
-    {
-        // Accept any value for labels - they are display-only elements
-        // This fixes the "Expected null, got string" error
+    public function jsonSerialize() : array {
+        return $this->serializeElementData();
     }
 }

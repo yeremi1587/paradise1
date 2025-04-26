@@ -31,7 +31,18 @@ class CustomFormResponse {
      * Logs errors but allows execution to continue with defaults.
      */
     protected function validateResponse() : void {
-        foreach($this->elements as $i => $element){
+        $nonLabelElements = [];
+        $dataIndex = 0;
+        
+        // First, collect all non-label elements
+        foreach($this->elements as $element){
+            if($element->getType() !== "label") {
+                $nonLabelElements[] = $element;
+            }
+        }
+        
+        // Now process each non-label element with its corresponding data
+        foreach($nonLabelElements as $i => $element){
             if(!isset($this->data[$i])){
                 Server::getInstance()->getLogger()->error("Form validation error: Missing data for element " . $element->getText());
                 continue;
@@ -71,8 +82,14 @@ class CustomFormResponse {
      */
     public function getValues() : array{
         $values = [];
+        $nonLabelIndex = 0;
 
         foreach($this->elements as $element){
+            // Skip labels as they don't have values
+            if($element->getType() === "label") {
+                continue;
+            }
+            
             if ($element->getKey() !== null) {
                 try {
                     $values[$element->getKey()] = $element->getValue();
@@ -98,7 +115,16 @@ class CustomFormResponse {
                             $values[$element->getKey()] = null;
                     }
                 }
+            } else {
+                // For elements without a key, use their index
+                try {
+                    $values[$nonLabelIndex] = $element->getValue();
+                } catch (\Throwable $e) {
+                    Server::getInstance()->getLogger()->error("Error getting value for unnamed element: " . $e->getMessage());
+                    $values[$nonLabelIndex] = null;
+                }
             }
+            $nonLabelIndex++;
         }
 
         return $values;

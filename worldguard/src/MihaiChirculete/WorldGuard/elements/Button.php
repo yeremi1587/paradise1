@@ -99,10 +99,6 @@ class Button implements \JsonSerializable
      */
     public function jsonSerialize(): array
     {
-        $data = ["text" => $this->getText()];
-        if ($this->hasImage()) {
-            $data["image"] = $this->image;
-        }
-        return $data;
+        return $this->serializeElementData();
     }
 }

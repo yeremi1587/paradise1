@@ -1,100 +1,90 @@
 
 <?php
+declare(strict_types=1);
 
 namespace MihaiChirculete\WorldGuard\elements;
+
+use pocketmine\form\FormValidationException;
 
 abstract class Element implements \JsonSerializable {
 
     /** @var string */
     protected $text;
-    /** @var string */
+    /** @var mixed|null */
+    protected $value = null;
+    /** @var string|null */
     protected $key;
-    /** @var mixed */
-    protected $value;
+    /** @var string */
+    protected $type;
 
     /**
      * @param string $text
      */
-    public function __construct(string $text, string $key = null){
+    public function __construct(string $text) {
         $this->text = $text;
-        $this->key = $key ?? $text;
     }
 
     /**
-     * Returns the element's label.
-     * @return string
-     */
-    public function getText() : string{
-        return $this->text;
-    }
-
-    /**
-     * Returns the element's key. Used for accessing results in CustomForm::onSubmit().
-     * @return string
-     */
-    public function getKey() : string{
-        return $this->key;
-    }
-
-    /**
-     * Sets the key of the element.
-     * @param string $key
-     *
-     * @return Element
-     */
-    public function setKey(string $key) : Element{
-        $this->key = $key;
-        return $this;
-    }
-
-    /**
-     * Returns the element's type.
-     * @return string
-     */
-    abstract public function getType() : string;
-
-    /**
-     * Returns the element's value. Value depends on the element type.
+     * Returns the value of the element after the form is submitted.
      * @return mixed
      */
     abstract public function getValue();
 
     /**
-     * Sets the element's value. Used when re-sending forms.
+     * Sets the value of the element. Used when interpreting response data.
      * @param mixed $value
      */
-    public function setValue($value) : void{
-        $this->value = $value;
-    }
+    abstract public function setValue($value): void;
 
     /**
-     * Validates that the input is correct for the specific element type.
-     * Throws FormValidationException if not.
-     *
+     * Validates the value returned from the form
      * @param mixed $value
-     * @return void
+     * @throws FormValidationException if the value is invalid
      */
-    public function validateValue($value) : void{
-        // Default implementation - accept any value
-        // Subclasses should override this to provide proper validation
+    abstract public function validateValue($value): void;
+
+    /**
+     * Serializes the element data to be sent to the client
+     * @return array
+     */
+    abstract public function serializeElementData(): array;
+
+    /**
+     * @return string
+     */
+    public function getText(): string {
+        return $this->text;
     }
 
     /**
-     * Serializes the element to JSON for sending to clients.
-     * @return array
+     * @return string
      */
-    public function jsonSerialize() : array{
-        $jsonData = [
-            "type" => $this->getType(),
-            "text" => $this->getText()
-        ];
-
-        return array_merge($jsonData, $this->serializeElementData());
+    public function getType(): string {
+        return $this->type;
     }
 
     /**
-     * Returns additional data needed for serializing the specific element type.
+     * @param string|null $key
+     * 
+     * @return self
+     */
+    public function setKey(?string $key): self {
+        $this->key = $key;
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getKey(): ?string {
+        return $this->key;
+    }
+
+    /**
+     * Implementation of JsonSerializable
      * @return array
      */
-    abstract public function serializeElementData() : array;
+    public function jsonSerialize(): array {
+        return $this->serializeElementData();
+    }
 }

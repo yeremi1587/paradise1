@@ -6,133 +6,141 @@ namespace MihaiChirculete\WorldGuard\forms;
 
 use Closure;
 use MihaiChirculete\WorldGuard\elements\Button;
-use pocketmine\{form\FormValidationException, player\Player, utils\Utils};
+use pocketmine\player\Player;
+use pocketmine\utils\Utils;
 use function array_merge;
-use function is_string;
+use function count;
+use function is_int;
 
-class MenuForm extends Form
-{
-    /** @var Button[] */
-    protected $buttons = [];
+class MenuForm extends Form {
     /** @var string */
-    protected $text;
-    /** @var Closure|null */
+    private $content;
+    /** @var Button[] */
+    private $buttons = [];
+    /** @var Closure */
     private $onSubmit;
     /** @var Closure|null */
     private $onClose;
 
     /**
      * @param string $title
-     * @param string $text
-     * @param Button|string[] $buttons
-     * @param Closure|null $onSubmit
+     * @param string $content
+     * @param Button[] $buttons
+     * @param Closure $onSubmit
      * @param Closure|null $onClose
      */
-    public function __construct(string $title, string $text = "", array $buttons = [], ?Closure $onSubmit = null, ?Closure $onClose = null)
-    {
+    public function __construct(string $title, string $content, array $buttons, Closure $onSubmit, ?Closure $onClose = null){
         parent::__construct($title);
-        $this->text = $text;
-        $this->append(...$buttons);
-        $this->setOnSubmit($onSubmit);
-        $this->setOnClose($onClose);
-    }
-
-    /**
-     * @param string $text
-     *
-     * @return self
-     */
-    public function setText(string $text): self
-    {
-        $this->text = $text;
-        return $this;
-    }
-
-    /**
-     * @param Button|string ...$buttons
-     *
-     * @return self
-     */
-    public function append(...$buttons): self
-    {
-        if (isset($buttons[0]) && is_string($buttons[0])) {
-            $buttons = Button::createFromList(...$buttons);
+        $this->content = $content;
+        $this->buttons = array_values($buttons); //prevent issues with out-of-order indexing
+        
+        // Assign button values if not already set
+        foreach($this->buttons as $index => $button){
+            if($button->getValue() === null){
+                $button->setValue($index);
+            }
         }
+        
+        Utils::validateCallableSignature(function(Player $player, Button $selected) : void{
+        }, $onSubmit);
+        $this->onSubmit = $onSubmit;
+        if($onClose !== null){
+            Utils::validateCallableSignature(function(Player $player) : void{
+            }, $onClose);
+            $this->onClose = $onClose;
+        }
+    }
+
+    /**
+     * @param Button[] $buttons
+     *
+     * @return self
+     */
+    public function append(Button ...$buttons) : self{
         $this->buttons = array_merge($this->buttons, $buttons);
         return $this;
     }
 
     /**
-     * @param Closure|null $onSubmit
-     *
-     * @return self
+     * @return Button[]
      */
-    public function setOnSubmit(?Closure $onSubmit): self
-    {
-        if ($onSubmit !== null) {
-            Utils::validateCallableSignature(function (Player $player, Button $selected): void {
-            }, $onSubmit);
-            $this->onSubmit = $onSubmit;
-        }
-        return $this;
+    public function getButtons() : array{
+        return $this->buttons;
     }
 
     /**
-     * @param Closure|null $onClose
+     * @return string
+     */
+    public function getContent() : string{
+        return $this->content;
+    }
+
+    /**
+     * @param int $index
+     *
+     * @return Button|null
+     */
+    public function getButton(int $index) : ?Button{
+        return $this->buttons[$index] ?? null;
+    }
+
+    /**
+     * @param string $text
+     * @param Closure $callback
      *
      * @return self
      */
-    public function setOnClose(?Closure $onClose): self
-    {
-        if ($onClose !== null) {
-            Utils::validateCallableSignature(function (Player $player): void {
-            }, $onClose);
-            $this->onClose = $onClose;
-        }
+    public function setButton(string $text, Closure $callback) : self{
+        $button = count($this->buttons);
+        $this->buttons[] = new Button($text);
+        $this->buttons[$button]->setValue($button);
+        $this->labeledButtonCallbacks[$button] = $callback;
+
         return $this;
     }
 
     /**
      * @return string
      */
-    final public function getType(): string
-    {
+    final public function getType() : string{
         return self::TYPE_MENU;
     }
 
     /**
      * @return array
      */
-    protected function serializeFormData(): array
-    {
+    protected function serializeFormData() : array{
         $buttonsData = [];
         foreach ($this->buttons as $button) {
-            $buttonsData[] = $button->jsonSerialize();
+            $buttonsData[] = $button;
         }
         
         return [
             "buttons" => $buttonsData,
-            "content" => $this->text
+            "content" => $this->content
         ];
     }
 
-    final public function handleResponse(Player $player, $data): void
-    {
-        if ($data === null) {
-            if ($this->onClose !== null) {
-                ($this->onClose)($player, $data);
+    final public function handleResponse(Player $player, $data) : void{
+        if($data === null){
+            if($this->onClose !== null){
+                ($this->onClose)($player);
             }
-        } elseif (is_int($data)) {
-            if (!isset($this->buttons[$data])) {
-                throw new FormValidationException("Button with index $data does not exist");
+        }elseif(is_int($data)){
+            if(!isset($this->buttons[$data])){
+                $player->getServer()->getLogger()->warning("Menu form " . $this->getTitle() . " returned invalid button index $data");
+                return;
             }
-            if ($this->onSubmit !== null) {
-                $button = $this->buttons[$data];
-                $button->setValue($data);
-                ($this->onSubmit)($player, $button);
+            
+            // Set the value to match the index if not already set
+            $selectedButton = $this->buttons[$data];
+            if($selectedButton->getValue() === null){
+                $selectedButton->setValue($data);
             }
-        } else {
-            throw new FormValidationException("Expected int or null, got " . gettype($data));
+            
+            ($this->onSubmit)($player, $selectedButton);
+        }else{
+            $player->getServer()->getLogger()->warning("Expected int or null, got " . gettype($data));
         }
     }
 }

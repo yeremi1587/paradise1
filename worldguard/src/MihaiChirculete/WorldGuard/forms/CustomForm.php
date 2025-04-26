@@ -84,14 +84,17 @@ class CustomForm extends Form
         }
 
         try {
-            // First, extract only non-label elements to match data array indices
+            // Extract non-label elements
             $nonLabelElements = [];
             foreach ($this->elements as $element) {
                 if (!($element instanceof Label)) {
                     $nonLabelElements[] = $element;
                 }
             }
-
+            
+            // Collect processable data for the response
+            $processedData = [];
+            
             // Process the data for each element
             foreach ($data as $index => $value) {
                 if (!isset($nonLabelElements[$index])) {
@@ -100,6 +103,7 @@ class CustomForm extends Form
                 }
 
                 $element = $nonLabelElements[$index];
+                $processedData[$index] = $value;
                 
                 try {
                     // Set value directly, element will handle type conversion
@@ -110,8 +114,9 @@ class CustomForm extends Form
                 }
             }
 
-            // Submit the form
-            ($this->onSubmit)($player, new CustomFormResponse($this->elements));
+            // Submit the form with both elements and processed data
+            ($this->onSubmit)($player, new CustomFormResponse($this->elements, $processedData));
+            
         } catch (\Throwable $e) {
             $player->getServer()->getLogger()->error("Error processing form: " . $e->getMessage());
             $player->getServer()->getLogger()->error($e->getTraceAsString());
