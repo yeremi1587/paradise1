@@ -79,6 +79,8 @@ class Input extends Element
     public function serializeElementData(): array
     {
         return [
+            "type" => $this->getType(),
+            "text" => $this->getText(),
             "placeholder" => $this->placeholder,
             "default" => $this->default
         ];
@@ -87,9 +89,29 @@ class Input extends Element
     /**
      * @param mixed $value
      */
-    public function validate($value): void
+    public function setValue($value): void
     {
-        // Store any value, conversion will happen in getValue()
-        $this->setValue($value);
+        $this->value = $value;
+    }
+
+    /**
+     * @param mixed $value
+     * @throws FormValidationException if the value is invalid
+     */
+    public function validateValue($value): void
+    {
+        // Input values can be any type, but we'll convert to string later
+        // No need to throw validation error for inputs unless it's something we can't convert
+        if ($value !== null && !is_scalar($value) && !is_array($value) && !is_object($value)) {
+            throw new FormValidationException("Expected scalar value for input, got " . gettype($value));
+        }
+    }
+    
+    /**
+     * @return array
+     */
+    public function jsonSerialize(): array
+    {
+        return $this->serializeElementData();
     }
 }

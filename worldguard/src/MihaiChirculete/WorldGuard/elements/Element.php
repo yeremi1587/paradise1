@@ -28,7 +28,9 @@ abstract class Element implements \JsonSerializable {
      * Returns the value of the element after the form is submitted.
      * @return mixed
      */
-    abstract public function getValue();
+    public function getValue() {
+        return $this->value;
+    }
 
     /**
      * Sets the value of the element. Used when interpreting response data.

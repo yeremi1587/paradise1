@@ -1,142 +1,87 @@
 
 <?php
+declare(strict_types=1);
 
 namespace MihaiChirculete\WorldGuard\forms;
 
 use MihaiChirculete\WorldGuard\elements\Element;
-use pocketmine\Server;
+use MihaiChirculete\WorldGuard\elements\Label;
 
 class CustomFormResponse {
-
     /** @var Element[] */
-    protected $elements;
+    private $elements;
     
     /** @var array */
-    protected $data;
+    private $data;
 
     /**
      * @param Element[] $elements
      * @param array $data
      */
-    public function __construct(array $elements, array $data){
+    public function __construct(array $elements, array $data) {
         $this->elements = $elements;
         $this->data = $data;
-
-        // Validate the response data
-        $this->validateResponse();
     }
 
     /**
-     * Validates response data to ensure it matches expected element types.
-     * Logs errors but allows execution to continue with defaults.
+     * Returns an array of element values excluding Labels
+     * @return array
      */
-    protected function validateResponse() : void {
-        $nonLabelElements = [];
-        $dataIndex = 0;
+    public function getValues(): array {
+        $values = [];
         
-        // First, collect all non-label elements
-        foreach($this->elements as $element){
-            if($element->getType() !== "label") {
-                $nonLabelElements[] = $element;
+        foreach ($this->elements as $element) {
+            if (!($element instanceof Label)) {
+                $values[] = $element->getValue();
             }
         }
         
-        // Now process each non-label element with its corresponding data
-        foreach($nonLabelElements as $i => $element){
-            if(!isset($this->data[$i])){
-                Server::getInstance()->getLogger()->error("Form validation error: Missing data for element " . $element->getText());
-                continue;
-            }
+        return $values;
+    }
 
-            try {
-                $element->validateValue($this->data[$i]);
-                $element->setValue($this->data[$i]);
-            } catch(\Exception $e) {
-                // Log the error but don't crash
-                Server::getInstance()->getLogger()->error("Form validation error for element '" . $element->getText() . "': " . $e->getMessage());
-                
-                // Set a default value appropriate for the element type
-                switch($element->getType()) {
-                    case "toggle":
-                        $element->setValue(false);
-                        break;
-                    case "slider":
-                    case "stepslider":
-                        $element->setValue(0);
-                        break;
-                    case "dropdown":
-                        $element->setValue(0);
-                        break;
-                    case "input":
-                        $element->setValue("");
-                        break;
-                    default:
-                        $element->setValue(null);
-                }
+    /**
+     * Returns the value of a specific element by its key
+     * @param string $key
+     * @return mixed|null
+     */
+    public function getValueByKey(string $key) {
+        foreach ($this->elements as $element) {
+            if ($element->getKey() === $key) {
+                return $element->getValue();
             }
         }
+        
+        return null;
+    }
+
+    /**
+     * Returns an associative array of element keys and values
+     * @return array
+     */
+    public function getAssociativeValues(): array {
+        $values = [];
+        
+        foreach ($this->elements as $element) {
+            $key = $element->getKey();
+            if ($key !== null && !($element instanceof Label)) {
+                $values[$key] = $element->getValue();
+            }
+        }
+        
+        return $values;
+    }
+
+    /**
+     * @return Element[]
+     */
+    public function getElements(): array {
+        return $this->elements;
     }
 
     /**
      * @return array
      */
-    public function getValues() : array{
-        $values = [];
-        $nonLabelIndex = 0;
-
-        foreach($this->elements as $element){
-            // Skip labels as they don't have values
-            if($element->getType() === "label") {
-                continue;
-            }
-            
-            if ($element->getKey() !== null) {
-                try {
-                    $values[$element->getKey()] = $element->getValue();
-                } catch (\Throwable $e) {
-                    Server::getInstance()->getLogger()->error("Error getting value for element '" . $element->getText() . "': " . $e->getMessage());
-                    
-                    // Provide sensible defaults based on element type
-                    switch($element->getType()) {
-                        case "toggle":
-                            $values[$element->getKey()] = false;
-                            break;
-                        case "slider":
-                        case "stepslider":
-                            $values[$element->getKey()] = 0;
-                            break;
-                        case "dropdown":
-                            $values[$element->getKey()] = 0;
-                            break;
-                        case "input":
-                            $values[$element->getKey()] = "";
-                            break;
-                        default:
-                            $values[$element->getKey()] = null;
-                    }
-                }
-            } else {
-                // For elements without a key, use their index
-                try {
-                    $values[$nonLabelIndex] = $element->getValue();
-                } catch (\Throwable $e) {
-                    Server::getInstance()->getLogger()->error("Error getting value for unnamed element: " . $e->getMessage());
-                    $values[$nonLabelIndex] = null;
-                }
-            }
-            $nonLabelIndex++;
-        }
-
-        return $values;
-    }
-
-    /**
-     * @param string $key
-     *
-     * @return mixed
-     */
-    public function getValue(string $key){
-        $values = $this->getValues();
-        return $values[$key] ?? null;
+    public function getRawData(): array {
+        return $this->data;
     }
 }

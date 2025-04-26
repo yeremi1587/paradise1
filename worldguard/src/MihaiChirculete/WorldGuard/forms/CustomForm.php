@@ -106,7 +106,8 @@ class CustomForm extends Form
                 $processedData[$index] = $value;
                 
                 try {
-                    // Set value directly, element will handle type conversion
+                    // Validate and set value
+                    $element->validateValue($value);
                     $element->setValue($value);
                 } catch (FormValidationException $e) {
                     // Log the error but continue processing
