@@ -11,7 +11,6 @@ use xoapp\clyde\session\SessionFactory;
 
 class ClydeUtils
 {
-
     /**
      * @return Player[]
      */
@@ -97,6 +96,10 @@ class ClydeUtils
     {
         foreach (Server::getInstance()->getOnlinePlayers() as $players) {
             $players->hidePlayer($player);
+            
+            if ($player->isOnline()) {
+                $player->setNameTag("");
+            }
         }
     }
 
@@ -104,6 +107,10 @@ class ClydeUtils
     {
         foreach (Server::getInstance()->getOnlinePlayers() as $players) {
             $players->showPlayer($player);
+            
+            if ($player->isOnline()) {
+                $player->setNameTag($player->getName());
+            }
         }
     }
 

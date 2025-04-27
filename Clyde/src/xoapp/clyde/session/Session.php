@@ -17,7 +17,6 @@ use xoapp\clyde\utils\ClydeUtils;
 
 class Session
 {
-
     private array $items;
     private array $armor;
 
@@ -72,7 +71,9 @@ class Session
             ]
         );
 
+        $this->player->setInvisible(true);
         $this->player->setAllowFlight(true);
+        $this->showOtherStaff();
     }
 
     public function close(): void
@@ -91,7 +92,7 @@ class Session
 
         $this->player->setAllowFlight(false);
         $this->player->setFlying(false);
-
+        $this->player->setInvisible(false);
         ClydeUtils::showToPlayers($this->player);
 
         $this->player->teleport($this->first);

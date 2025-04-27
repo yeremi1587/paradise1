@@ -11,6 +11,7 @@ use pocketmine\event\block\BlockBreakEvent;
 use pocketmine\event\block\BlockPlaceEvent;
 use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\event\player\PlayerChatEvent;
+use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\event\player\PlayerExhaustEvent;
 use pocketmine\event\player\PlayerDropItemEvent;
@@ -19,6 +20,25 @@ use pocketmine\event\inventory\InventoryTransactionEvent;
 
 class ClydeHandler implements Listener
 {
+    public function onPlayerJoin(PlayerJoinEvent $event): void
+    {
+        $player = $event->getPlayer();
+        
+        // Ocultar jugadores en StaffMode para los jugadores que se acaban de unir
+        foreach (SessionFactory::getInstance()->getSessions() as $session) {
+            if (!$session->isVanished()) {
+                continue;
+            }
+            
+            $i_player = $session->getPlayer();
+            if (!$i_player->isOnline()) {
+                continue;
+            }
+            
+            // Ocultar el jugador staff para el nuevo jugador
+            $player->hidePlayer($i_player);
+        }
+    }
 
     public function onPlayerQuit(PlayerQuitEvent $event): void
     {
