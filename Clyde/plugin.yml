@@ -1,0 +1,39 @@
+name: Clyde
+main: xoapp\clyde\Loader
+api: 5.0.0
+version: 1.0.0
+author: Xoapp
+
+permissions:
+  ban.command:
+    default: op
+  ban-ip.command:
+    default: op
+  tempban-ip.command:
+    default: op
+  rollback.command:
+    default: op
+  staffmode.command:
+    default: op
+  invsee.command:
+    default: op
+  freeze.command:
+    default: op
+  unmute.command:
+    default: op
+  warn.command:
+    default: op
+  mute.command:
+    default: op
+  mutechat.command:
+    default: op
+  tempban.command:
+    default: op
+  unban.command:
+    default: op
+  kick.command:
+    default: op
+  banlist.command:
+    default: op
+  alts.command:
+    default: op
