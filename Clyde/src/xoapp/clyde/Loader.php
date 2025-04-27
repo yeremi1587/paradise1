@@ -31,10 +31,10 @@ use xoapp\clyde\commands\other\TempBanCommand;
 use xoapp\clyde\profile\factory\ProfileFactory;
 use xoapp\clyde\commands\other\TempBanIpCommand;
 use xoapp\clyde\library\muqsit\invmenu\InvMenuHandler;
+use xoapp\clyde\commands\other\PlayerIpCommand;
 
 class Loader extends PluginBase
 {
-
     use SingletonTrait {
         setInstance as private;
         reset as private;
@@ -70,7 +70,7 @@ class Loader extends PluginBase
         $this->getServer()->getCommandMap()->registerAll(
             "clyde", [
                 new ModCommand(),
-                new InvSeeCommand(),
+                new PlayerIpCommand(),
                 new RollbackCommand(),
                 new BanCommand(),
                 new KickCommand(),

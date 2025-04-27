@@ -5,6 +5,8 @@ version: 1.0.0
 author: Xoapp
 
 permissions:
+  playerip.command:
+    default: op
   ban.command:
     default: op
   ban-ip.command:
