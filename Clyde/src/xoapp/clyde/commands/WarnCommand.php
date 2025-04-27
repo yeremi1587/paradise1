@@ -1,3 +1,4 @@
+
 <?php
 
 namespace xoapp\clyde\commands;
@@ -7,10 +8,10 @@ use pocketmine\utils\TextFormat;
 use xoapp\clyde\utils\ClydeUtils;
 use pocketmine\command\CommandSender;
 use xoapp\clyde\profile\factory\ProfileFactory;
+use xoapp\clyde\player\PlayerData;
 
 class WarnCommand extends Command
 {
-
     public function __construct()
     {
         parent::__construct("warn", "Warn a player");
@@ -29,23 +30,31 @@ class WarnCommand extends Command
             return;
         }
 
-        $player = ClydeUtils::getPlayerByPrefix($args[0]);
-        if (is_null($player)) {
-            $sender->sendMessage(TextFormat::colorize("&cThis player is not online"));
+        $playerName = $args[0];
+        $reason = implode(" ", array_slice($args, 1));
+        
+        // Verificar si el jugador existe en la data
+        $playerData = PlayerData::getInstance()->getData($playerName);
+        if ($playerData === null) {
+            $sender->sendMessage(TextFormat::colorize("&cPlayer not found in database"));
             return;
         }
 
-        $reason = implode(" ", array_slice($args, 1));
-        ProfileFactory::getProfile($player)?->addWarn([
+        // Guardar el warn aunque el jugador esté offline
+        ProfileFactory::getProfile($playerName)?->addWarn([
             "reason" => $reason,
             "sender" => $sender->getName(),
             "date" => date("Y-m-d H:i:s")
         ]);
 
-        $player->sendMessage(TextFormat::colorize(
-            "&6You has been warned for &f" . $reason
-        ));
+        // Si el jugador está online, notificarle
+        $player = ClydeUtils::getPlayerByPrefix($playerName);
+        if ($player !== null) {
+            $player->sendMessage(TextFormat::colorize(
+                "&6You has been warned for &f" . $reason
+            ));
+        }
 
-        $sender->sendMessage(TextFormat::colorize("&aWarn successfully send"));
+        $sender->sendMessage(TextFormat::colorize("&aWarn successfully sent"));
     }
 }

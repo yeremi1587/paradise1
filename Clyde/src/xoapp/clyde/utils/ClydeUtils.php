@@ -98,6 +98,7 @@ class ClydeUtils
             $players->hidePlayer($player);
             
             if ($player->isOnline()) {
+                $player->hidePlayer($player);
                 $player->setNameTag("");
             }
         }
@@ -109,6 +110,7 @@ class ClydeUtils
             $players->showPlayer($player);
             
             if ($player->isOnline()) {
+                $player->showPlayer($player);
                 $player->setNameTag($player->getName());
             }
         }
